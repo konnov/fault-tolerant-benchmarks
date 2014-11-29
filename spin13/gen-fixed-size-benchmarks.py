@@ -7,26 +7,12 @@
 #
 # Igor Konnov, 2014
 
-import os
-import shutil
-import subprocess
-import sys
-import tempfile
-
-
-def help_and_exit():
-    print "set BYMC_HOME to the directory, where bymc is installed"
-    print "  (i.e., where script verifyco-spin is located)"
-    sys.exit(1)
-
-
-def dict_s(d):                
-    return ",".join([ "%s=%d" % (k, v) for (k, v) in d.iteritems() ])
+from genUtil import *
 
 
 def gen_params_byz():
     for n in range(3, 11):
-        for t in range(0, (n / 3 + 1) + 1):
+        for t in range(1, (n / 3 + 1) + 1):
             for f in range(0, (t + 1) + 1):
                 yield { "N": n, "T": t, "F": f }
 
@@ -35,49 +21,117 @@ def is_good_byz(d):
     return d["N"] > 3 * d["T"] and d["T"] >= d["F"]
 
 
-def gen(bymc_home, source, dest, basename, gen_f, filter_f):
-    segs = basename.split('.')
-    name, ext = ".".join(segs[:-1]), segs[-1]
-    for d in gen_f():
-        suf = "good" if filter_f(d) else "bad"
-        param_s = dict_s(d)
-        bname = "%s-%s-%s" % (name, suf, param_s)
-        if ext != '':
-            bname = '%s.%s' % (bname, ext)
+def gen_params_clean():
+    for n in range(3, 11):
+        for t in range(1, n):
+            for fc in range(0, (t + 1) + 1):
+                for fnc in range(0, fc + 1):
+                    yield { "N": n, "Tc": t, "Fc": fc, "Fnc": fnc }
 
-        print "Generating %s..." % bname
-        try:
-            exe = os.path.join(bymc_home, "bymc.native")
-            cmd = ("%s -s %s %s") % (exe, param_s, os.path.join(source, basename))
-            print "  %s" % cmd
-            retcode = subprocess.call(cmd, shell = True)
-            if retcode < 0:
-                print >>sys.stderr, "Error: ", -retcode
-            else:
-                print "OK"
-        except OSError as e:
-            print >>sys.stderr, ("Failed to execute %s:" % exe), e
 
-        try:
-            fullname = os.path.join(dest, bname)
-            shutil.copyfile('concrete.prm', fullname)
-        except OSError as e:
-            print >>sys.stderr, "Failed to move concrete.prm", e
-            sys.exit(99)
+def is_good_clean(d):
+    return d["N"] > d["Tc"] + 1 and d["Tc"] >= d["Fc"] and d["Fc"] >= d["Fnc"]
+
+
+def gen_params_fisman():
+    for n in range(2, 11):
+        yield { "N": n }
+
+
+def is_good_fisman(d):
+    return True
+
+
+def gen_params_omit():
+    for n in range(3, 11):
+        for t in range(0, (n / 2 + 1) + 1):
+            for f in range(0, (t + 1) + 1):
+                yield { "N": n, "To": t, "Fo": f }
+
+
+def is_good_omit(d):
+    return d["N"] > 2 * d["To"] and d["To"] >= d["Fo"]
+
+
+def gen_params_symm():
+    for n in range(3, 11):
+        for t in range(1, n):
+            for fp in range(0, (n / 2 + 1) + 1):
+                for fs in range(0, fp + 1):
+                    yield { "N": n, "T": t, "Fp": fp, "Fs": fs }
+
+
+def is_good_symm(d):
+    return d["N"] > 2 * d["T"] and d["T"] >= d["Fp"] and d["Fp"] >= d["Fs"]
+
+
+def gen_params_symm_byz():
+    for n in range(3, 11):
+        for ts in range(1, (n / 2 + 1) + 1):
+            for ta in range(1, (n / 3 + 1) + 1):
+                for fa in range(ta - 1, (ta + 1) + 1):
+                    for fsp in range(ts - 1, (ts + 1) + 1):
+                        for fss in range(fsp - 1, (fsp + 1) + 1):
+                            yield { "N": n, "Ts": ts, "Ta": ta,
+                                    "Fa": fa, "Fsp": fsp,  "Fss": fss }
+
+
+def is_good_symm_byz(d):
+    return d["N"] > 3 * d["Ta"] + 2 * d["Ts"] and d["Ta"] >= d["Fa"] \
+            and d["Fsp"] >= d["Fss"] and d["Ts"] >= d["Fsp"]
+
+
+def gen_params_omit_byz():
+    for n in range(3, 11):
+        for to in range(1, (n / 2 + 1) + 1):
+            for ta in range(1, (n / 3 + 1) + 1):
+                for fa in range(ta - 1, (ta + 1) + 1):
+                    for fo in range(to - 1, (to + 1) + 1):
+                        yield { "N": n, "To": to, "Ta": ta, "Fa": fa, "Fo": fo }
+
+
+def is_good_omit_byz(d):
+    return d["N"] > 3 * d["Ta"] + 2 * d["To"] \
+            and d["Ta"] >= d["Fa"] and d["Fo"] >= d["Fo"]
+
+
+def gen_params_comm_byz():
+    for n in range(3, 11):
+        for t in range(1, (n / 3 + 1) + 1):
+            for f in range(0, (t + 1) + 1):
+                yield { "N": n, "T": t, "F": f }
+
+
+def is_good_comm_byz(d):
+    return d["N"] > 4 * d["T"] and d["T"] >= d["F"]
+
+
+def gen_params_cond2():
+    for n in range(3, 11):
+        for t in range(1, (n / 2 + 1) + 1):
+            for f in range(0, (t + 1) + 1):
+                yield { "N": n, "T": t, "F": f }
+
+
+def is_good_cond2(d):
+    return d["N"] > 2 * d["T"] and d["T"] >= d["F"]
 
 
 if __name__ == "__main__":
-    try:
-        bymc_home = os.environ['BYMC_HOME']
-        if not os.path.isfile(os.path.join(bymc_home, 'bymc.native')):
-            help_and_exit()
-    except KeyError, _:
-        help_and_exit()
+    # generate the benchmarks for fixed parameters
+    benchmarks = \
+        [
+            ('bcast-byz.pml', gen_params_byz, is_good_byz),
+            ('bcast-clean.pml', gen_params_clean, is_good_clean),
+            ('bcast-omit.pml', gen_params_omit, is_good_omit),
+            ('bcast-symm.pml', gen_params_symm, is_good_symm),
+            ('bcast-symm-byz.pml', gen_params_symm_byz, is_good_symm_byz),
+            ('bcast-omit-byz.pml', gen_params_omit_byz, is_good_omit_byz),
+            ('bcast-comm-byz.pml', gen_params_comm_byz, is_good_comm_byz),
+            ('bcast-fisman-crash.pml', gen_params_fisman, is_good_fisman),
+            ('asyn-byzagreement0.pml', gen_params_byz, is_good_byz),
+            ('cond-consensus2.pml', gen_params_cond2, is_good_cond2),
+        ]
 
-    source = os.path.join(os.getcwd(), "parameterized")
-    dest = os.path.join(os.getcwd(), "fixed-size")
-    temp = tempfile.mkdtemp()
-    os.chdir(temp)
-    gen(bymc_home, source, dest, 'bcast-byz.pml', gen_params_byz, is_good_byz)
-    shutil.rmtree(temp)
+    do_generate(benchmarks)
 
