@@ -1,6 +1,9 @@
 /**
- * Condition based consensus
- * in the symbolic extension of Promela.
+ * Modeling Condition-based consensus that appeared in:
+ *
+ * A. Mostefaoui, E. Mourgaya, P. R. Parvédy, M. Raynal.
+ * Evaluating the Condition-based Approach to Solve Consensus,
+ * DSN, 2003, p. 541.
  *
  * Annu John, Igor Konnov, Josef Widder, 2013-2014
  *

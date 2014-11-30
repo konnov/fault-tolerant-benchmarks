@@ -1,6 +1,12 @@
  /**
- * A model of the broadcast distributed algorithm for a fixed
- * number of processes.
+ * A parameterized model of the broadcast distributed algorithm
+ * for Byzantine and omission faults.
+ *
+ * This is a one-round version of asynchronous reliable broadcast from:
+ *
+ * T. K. Srikanth, Sam Toueg. Simulating authenticated broadcasts to derive
+ * simple fault-tolerant algorithms. Distributed Computing 1987,
+ * Volume 2, Issue 2, pp 80-94
  *
  * Igor Konnov, Josef Widder, 2012
  */

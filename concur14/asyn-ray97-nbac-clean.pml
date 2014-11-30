@@ -1,13 +1,15 @@
-/**
- * A parameterized model of the *asynchronous* non-blocking atomic commitment
- * algorithm with failure detectors, after the "generic NBAC protocol"
- * from Raynal 1997 (A Case study of Agreement Problems..."
- * in the symbolic extension of Promela.
- * This is an encoding for *clean* crashes.
- * Igor Konnov, Josef Widder, 2013-2014
+/** A parameterized model of the *asynchronous* non-blocking atomic commitment
+ * algorithm with failure detectors, after the "generic NBAC protocol" from
  *
- * This file is a subject to the license that is bundled
- * together with this package and can be found in the file LICENSE.
+ * M. Raynal. A case study of agreement problems in distributed systems:
+ * non-blocking atomic commitment, High-Assurance Systems Engineering
+ * Workshop, 1997
+ *
+ * This is an encoding for *clean* crashes.  Igor Konnov, Josef Widder,
+ * 2013-2014
+ *
+ * This file is a subject to the license that is bundled together with this
+ * package and can be found in the file LICENSE.
  */
 
 #pragma option "piaDom.thresholds=0,1,N-1,N" 

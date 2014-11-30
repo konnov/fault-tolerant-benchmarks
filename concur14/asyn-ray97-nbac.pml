@@ -1,11 +1,12 @@
 /**
  * A parameterized model of the *asynchronous* non-blocking atomic commitment
  * algorithm with failure detectors, after the "generic NBAC protocol"
- * from Raynal 1997 (A Case study of Agreement Problems..."
- * in the symbolic extension of Promela. 
+ * from
  *
- * TODO: pay Josef 200 grams.
-
+ * M. Raynal. A case study of agreement problems in distributed systems:
+ * non-blocking atomic commitment, High-Assurance Systems Engineering
+ * Workshop, 1997
+ *
  * Igor Konnov, Josef Widder, 2013-2014
  *
  * This file is a subject to the license that is bundled
