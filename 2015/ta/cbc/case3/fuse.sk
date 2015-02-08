@@ -1,0 +1,2946 @@
+skel Proc {
+  local nrcvd00, nrcvd01, nrcvd10, nrcvd11, pc;
+  shared nsnt00, nsnt01, nsnt10, nsnt11, nfaulty;
+  parameters N, T, F, MAJ;
+  assumptions (8) {
+    N > 2;
+    F >= 0;
+    T >= 1;
+    N > (2 * T);
+    F <= T;
+    (((MAJ - 1) * 2) == (N - 1)  ||  ((MAJ - 1) * 2) == N);
+    MAJ < (N - T);
+    F >= 1;
+  }
+
+  locations (115) {
+    loc0_0_0_0_0: [0; 0; 0; 0; 0];
+    loc0_0_0_0_2: [0; 0; 0; 0; 2];
+    loc1_1_0_0_7: [1; 1; 0; 0; 7];
+    loc0_0_0_0_6: [0; 0; 0; 0; 6];
+    loc0_0_0_0_3: [0; 0; 0; 0; 3];
+    loc0_0_1_0_6: [0; 0; 1; 0; 6];
+    loc0_0_2_0_6: [0; 0; 2; 0; 6];
+    loc0_0_3_0_6: [0; 0; 3; 0; 6];
+    loc0_0_4_0_6: [0; 0; 4; 0; 6];
+    loc0_0_0_1_6: [0; 0; 0; 1; 6];
+    loc0_0_1_1_6: [0; 0; 1; 1; 6];
+    loc0_0_2_1_6: [0; 0; 2; 1; 6];
+    loc0_0_3_1_6: [0; 0; 3; 1; 6];
+    loc0_0_4_1_6: [0; 0; 4; 1; 6];
+    loc0_0_0_2_6: [0; 0; 0; 2; 6];
+    loc0_0_1_2_6: [0; 0; 1; 2; 6];
+    loc0_0_2_2_6: [0; 0; 2; 2; 6];
+    loc0_0_3_2_6: [0; 0; 3; 2; 6];
+    loc0_0_4_2_6: [0; 0; 4; 2; 6];
+    loc0_0_0_3_6: [0; 0; 0; 3; 6];
+    loc0_0_1_3_6: [0; 0; 1; 3; 6];
+    loc0_0_2_3_6: [0; 0; 2; 3; 6];
+    loc0_0_3_3_6: [0; 0; 3; 3; 6];
+    loc0_0_4_3_6: [0; 0; 4; 3; 6];
+    loc0_0_0_4_6: [0; 0; 0; 4; 6];
+    loc0_0_1_4_6: [0; 0; 1; 4; 6];
+    loc0_0_2_4_6: [0; 0; 2; 4; 6];
+    loc0_0_3_4_6: [0; 0; 3; 4; 6];
+    loc0_0_4_4_6: [0; 0; 4; 4; 6];
+    loc0_0_0_2_3: [0; 0; 0; 2; 3];
+    loc0_0_4_2_4: [0; 0; 4; 2; 4];
+    loc0_0_3_4_4: [0; 0; 3; 4; 4];
+    loc0_0_3_3_4: [0; 0; 3; 3; 4];
+    loc0_0_4_3_4: [0; 0; 4; 3; 4];
+    loc0_0_3_2_4: [0; 0; 3; 2; 4];
+    loc0_0_2_2_3: [0; 0; 2; 2; 3];
+    loc0_0_4_4_4: [0; 0; 4; 4; 4];
+    loc0_0_3_4_5: [0; 0; 3; 4; 5];
+    loc0_0_2_4_5: [0; 0; 2; 4; 5];
+    loc0_0_4_4_5: [0; 0; 4; 4; 5];
+    loc0_0_4_3_5: [0; 0; 4; 3; 5];
+    loc0_0_2_3_5: [0; 0; 2; 3; 5];
+    loc0_0_3_3_5: [0; 0; 3; 3; 5];
+    loc0_0_1_2_3: [0; 0; 1; 2; 3];
+    loc0_0_1_4_5: [0; 0; 1; 4; 5];
+    loc0_0_1_3_5: [0; 0; 1; 3; 5];
+    loc0_0_0_4_5: [0; 0; 0; 4; 5];
+    loc0_0_0_3_5: [0; 0; 0; 3; 5];
+    loc0_0_1_0_3: [0; 0; 1; 0; 3];
+    loc0_0_3_0_4: [0; 0; 3; 0; 4];
+    loc0_0_4_0_4: [0; 0; 4; 0; 4];
+    loc0_0_4_1_4: [0; 0; 4; 1; 4];
+    loc0_0_2_0_3: [0; 0; 2; 0; 3];
+    loc0_0_3_1_4: [0; 0; 3; 1; 4];
+    loc0_0_2_1_3: [0; 0; 2; 1; 3];
+    loc0_0_1_1_3: [0; 0; 1; 1; 3];
+    loc0_0_0_1_3: [0; 0; 0; 1; 3];
+    loc1_0_0_0_2: [1; 0; 0; 0; 2];
+    loc1_1_0_0_2: [1; 1; 0; 0; 2];
+    loc2_2_0_0_7: [2; 2; 0; 0; 7];
+    loc2_2_0_0_2: [2; 2; 0; 0; 2];
+    loc3_2_0_0_2: [3; 2; 0; 0; 2];
+    loc3_2_0_0_7: [3; 2; 0; 0; 7];
+    loc4_2_0_0_7: [4; 2; 0; 0; 7];
+    loc3_3_0_0_7: [3; 3; 0; 0; 7];
+    loc3_3_0_0_2: [3; 3; 0; 0; 2];
+    loc4_4_0_0_7: [4; 4; 0; 0; 7];
+    loc4_3_0_0_7: [4; 3; 0; 0; 7];
+    loc4_4_0_0_2: [4; 4; 0; 0; 2];
+    loc4_4_0_0_6: [4; 4; 0; 0; 6];
+    loc3_4_0_0_7: [3; 4; 0; 0; 7];
+    loc3_3_0_0_6: [3; 3; 0; 0; 6];
+    loc3_4_0_0_6: [3; 4; 0; 0; 6];
+    loc4_3_0_0_6: [4; 3; 0; 0; 6];
+    loc3_2_0_0_6: [3; 2; 0; 0; 6];
+    loc4_2_0_0_6: [4; 2; 0; 0; 6];
+    loc2_3_0_0_2: [2; 3; 0; 0; 2];
+    loc2_4_0_0_7: [2; 4; 0; 0; 7];
+    loc2_3_0_0_7: [2; 3; 0; 0; 7];
+    loc2_3_0_0_6: [2; 3; 0; 0; 6];
+    loc2_4_0_0_6: [2; 4; 0; 0; 6];
+    loc2_2_0_0_6: [2; 2; 0; 0; 6];
+    loc2_1_0_0_2: [2; 1; 0; 0; 2];
+    loc3_1_0_0_2: [3; 1; 0; 0; 2];
+    loc3_1_0_0_7: [3; 1; 0; 0; 7];
+    loc4_1_0_0_7: [4; 1; 0; 0; 7];
+    loc3_1_0_0_6: [3; 1; 0; 0; 6];
+    loc4_1_0_0_6: [4; 1; 0; 0; 6];
+    loc2_1_0_0_7: [2; 1; 0; 0; 7];
+    loc2_1_0_0_6: [2; 1; 0; 0; 6];
+    loc1_2_0_0_2: [1; 2; 0; 0; 2];
+    loc1_3_0_0_2: [1; 3; 0; 0; 2];
+    loc1_3_0_0_7: [1; 3; 0; 0; 7];
+    loc1_4_0_0_7: [1; 4; 0; 0; 7];
+    loc1_3_0_0_6: [1; 3; 0; 0; 6];
+    loc1_4_0_0_6: [1; 4; 0; 0; 6];
+    loc1_2_0_0_7: [1; 2; 0; 0; 7];
+    loc1_2_0_0_6: [1; 2; 0; 0; 6];
+    loc1_1_0_0_6: [1; 1; 0; 0; 6];
+    loc2_0_0_0_2: [2; 0; 0; 0; 2];
+    loc3_0_0_0_2: [3; 0; 0; 0; 2];
+    loc4_0_0_0_7: [4; 0; 0; 0; 7];
+    loc3_0_0_0_6: [3; 0; 0; 0; 6];
+    loc4_0_0_0_6: [4; 0; 0; 0; 6];
+    loc2_0_0_0_6: [2; 0; 0; 0; 6];
+    loc1_0_0_0_6: [1; 0; 0; 0; 6];
+    loc0_1_0_0_2: [0; 1; 0; 0; 2];
+    loc0_2_0_0_2: [0; 2; 0; 0; 2];
+    loc0_3_0_0_2: [0; 3; 0; 0; 2];
+    loc0_4_0_0_7: [0; 4; 0; 0; 7];
+    loc0_3_0_0_6: [0; 3; 0; 0; 6];
+    loc0_4_0_0_6: [0; 4; 0; 0; 6];
+    loc0_2_0_0_6: [0; 2; 0; 0; 6];
+    loc0_1_0_0_6: [0; 1; 0; 0; 6];
+    loc0_0_0_0_1: [0; 0; 0; 0; 1];
+  }
+
+  inits (119) {
+    (loc0_0_0_0_1 + loc0_0_0_0_0) == N;
+    loc0_0_0_0_2 == 0;
+    loc1_1_0_0_7 == 0;
+    loc1_0_0_0_2 == 0;
+    loc1_1_0_0_2 == 0;
+    loc0_1_0_0_2 == 0;
+    loc2_0_0_0_2 == 0;
+    loc2_2_0_0_7 == 0;
+    loc2_2_0_0_2 == 0;
+    loc2_1_0_0_2 == 0;
+    loc1_2_0_0_2 == 0;
+    loc0_2_0_0_2 == 0;
+    loc3_2_0_0_2 == 0;
+    loc3_2_0_0_7 == 0;
+    loc3_0_0_0_2 == 0;
+    loc4_2_0_0_7 == 0;
+    loc3_1_0_0_2 == 0;
+    loc2_1_0_0_7 == 0;
+    loc3_3_0_0_7 == 0;
+    loc3_3_0_0_2 == 0;
+    loc3_1_0_0_7 == 0;
+    loc2_3_0_0_2 == 0;
+    loc1_3_0_0_2 == 0;
+    loc0_3_0_0_2 == 0;
+    loc4_1_0_0_7 == 0;
+    loc4_4_0_0_7 == 0;
+    loc4_3_0_0_7 == 0;
+    loc4_0_0_0_7 == 0;
+    loc4_4_0_0_2 == 0;
+    loc2_4_0_0_7 == 0;
+    loc2_3_0_0_7 == 0;
+    loc1_3_0_0_7 == 0;
+    loc1_2_0_0_7 == 0;
+    loc0_4_0_0_7 == 0;
+    loc1_4_0_0_7 == 0;
+    loc3_4_0_0_7 == 0;
+    loc0_0_0_0_6 == 0;
+    loc0_0_1_0_6 == 0;
+    loc0_0_2_0_6 == 0;
+    loc0_0_3_0_6 == 0;
+    loc0_0_4_0_6 == 0;
+    loc0_0_0_1_6 == 0;
+    loc0_0_1_1_6 == 0;
+    loc0_0_2_1_6 == 0;
+    loc0_0_3_1_6 == 0;
+    loc0_0_4_1_6 == 0;
+    loc0_0_0_2_6 == 0;
+    loc0_0_1_2_6 == 0;
+    loc0_0_2_2_6 == 0;
+    loc0_0_3_2_6 == 0;
+    loc0_0_4_2_6 == 0;
+    loc0_0_0_3_6 == 0;
+    loc0_0_1_3_6 == 0;
+    loc0_0_2_3_6 == 0;
+    loc0_0_3_3_6 == 0;
+    loc0_0_4_3_6 == 0;
+    loc0_0_0_4_6 == 0;
+    loc0_0_1_4_6 == 0;
+    loc0_0_2_4_6 == 0;
+    loc0_0_3_4_6 == 0;
+    loc0_0_4_4_6 == 0;
+    loc0_3_0_0_6 == 0;
+    loc0_2_0_0_6 == 0;
+    loc1_2_0_0_6 == 0;
+    loc2_2_0_0_6 == 0;
+    loc3_2_0_0_6 == 0;
+    loc4_2_0_0_6 == 0;
+    loc3_3_0_0_6 == 0;
+    loc3_4_0_0_6 == 0;
+    loc3_0_0_0_6 == 0;
+    loc3_1_0_0_6 == 0;
+    loc1_3_0_0_6 == 0;
+    loc2_3_0_0_6 == 0;
+    loc4_3_0_0_6 == 0;
+    loc0_4_0_0_6 == 0;
+    loc0_1_0_0_6 == 0;
+    loc1_4_0_0_6 == 0;
+    loc2_4_0_0_6 == 0;
+    loc4_4_0_0_6 == 0;
+    loc1_1_0_0_6 == 0;
+    loc1_0_0_0_6 == 0;
+    loc2_0_0_0_6 == 0;
+    loc2_1_0_0_6 == 0;
+    loc4_1_0_0_6 == 0;
+    loc4_0_0_0_6 == 0;
+    loc0_0_0_0_3 == 0;
+    loc0_0_0_2_3 == 0;
+    loc0_0_4_2_4 == 0;
+    loc0_0_1_0_3 == 0;
+    loc0_0_3_4_4 == 0;
+    loc0_0_3_3_4 == 0;
+    loc0_0_4_3_4 == 0;
+    loc0_0_3_0_4 == 0;
+    loc0_0_4_0_4 == 0;
+    loc0_0_3_2_4 == 0;
+    loc0_0_4_1_4 == 0;
+    loc0_0_2_0_3 == 0;
+    loc0_0_3_1_4 == 0;
+    loc0_0_2_2_3 == 0;
+    loc0_0_1_1_3 == 0;
+    loc0_0_1_2_3 == 0;
+    loc0_0_0_1_3 == 0;
+    loc0_0_2_1_3 == 0;
+    loc0_0_4_4_4 == 0;
+    loc0_0_3_4_5 == 0;
+    loc0_0_2_4_5 == 0;
+    loc0_0_4_4_5 == 0;
+    loc0_0_1_4_5 == 0;
+    loc0_0_0_4_5 == 0;
+    loc0_0_1_3_5 == 0;
+    loc0_0_4_3_5 == 0;
+    loc0_0_2_3_5 == 0;
+    loc0_0_3_3_5 == 0;
+    loc0_0_0_3_5 == 0;
+    nsnt00 == 0;
+    nsnt01 == 0;
+    nsnt10 == 0;
+    nsnt11 == 0;
+    nfaulty == 0;
+  }
+
+  rules (896) {
+  0: loc0_0_0_0_1 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  1: loc0_0_0_0_1 -> loc0_0_0_0_2
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == (nsnt01 + 1); nsnt00' == nsnt00 };
+  2: loc0_0_0_0_0 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  3: loc0_0_0_0_0 -> loc0_0_0_0_2
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == (nsnt00 + 1) };
+  4: loc0_0_0_3_5 -> loc0_0_0_3_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  5: loc0_0_3_3_5 -> loc0_0_3_3_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  6: loc0_0_2_3_5 -> loc0_0_2_3_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  7: loc0_0_4_3_5 -> loc0_0_4_3_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  8: loc0_0_1_3_5 -> loc0_0_1_3_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  9: loc0_0_0_4_5 -> loc0_0_0_4_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  10: loc0_0_1_4_5 -> loc0_0_1_4_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  11: loc0_0_4_4_5 -> loc0_0_4_4_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  12: loc0_0_2_4_5 -> loc0_0_2_4_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  13: loc0_0_3_4_5 -> loc0_0_3_4_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  14: loc0_0_4_4_4 -> loc0_0_4_4_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  15: loc0_0_2_1_3 -> loc0_0_3_3_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  16: loc0_0_2_1_3 -> loc0_0_2_3_5
+      when ((nsnt10 >= F  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  17: loc0_0_2_1_3 -> loc0_0_4_3_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  18: loc0_0_2_1_3 -> loc0_0_4_4_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  19: loc0_0_2_1_3 -> loc0_0_2_4_5
+      when ((nsnt10 >= F  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  20: loc0_0_2_1_3 -> loc0_0_3_4_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  21: loc0_0_2_1_3 -> loc0_0_4_4_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  22: loc0_0_2_1_3 -> loc0_0_2_2_3
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  23: loc0_0_2_1_3 -> loc0_0_3_1_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  24: loc0_0_2_1_3 -> loc0_0_4_1_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  25: loc0_0_2_1_3 -> loc0_0_3_2_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  26: loc0_0_2_1_3 -> loc0_0_4_3_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  27: loc0_0_2_1_3 -> loc0_0_3_3_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  28: loc0_0_2_1_3 -> loc0_0_3_4_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  29: loc0_0_2_1_3 -> loc0_0_4_2_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  30: loc0_0_2_1_3 -> loc0_0_4_4_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  31: loc0_0_2_1_3 -> loc0_0_3_4_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  32: loc0_0_2_1_3 -> loc0_0_2_4_6
+      when (((nsnt10 >= F  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  33: loc0_0_2_1_3 -> loc0_0_4_3_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  34: loc0_0_2_1_3 -> loc0_0_3_3_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  35: loc0_0_2_1_3 -> loc0_0_2_3_6
+      when (((nsnt10 >= F  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  36: loc0_0_2_1_3 -> loc0_0_4_2_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  37: loc0_0_2_1_3 -> loc0_0_3_2_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  38: loc0_0_2_1_3 -> loc0_0_2_2_6
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  39: loc0_0_2_1_3 -> loc0_0_4_1_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  40: loc0_0_2_1_3 -> loc0_0_3_1_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  41: loc0_0_2_1_3 -> loc0_0_2_1_6
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  42: loc0_0_0_1_3 -> loc0_0_0_3_5
+      when (((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  43: loc0_0_0_1_3 -> loc0_0_3_3_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  44: loc0_0_0_1_3 -> loc0_0_2_3_5
+      when ((nsnt10 >= F  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  45: loc0_0_0_1_3 -> loc0_0_4_3_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  46: loc0_0_0_1_3 -> loc0_0_1_3_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  47: loc0_0_0_1_3 -> loc0_0_0_4_5
+      when (((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  48: loc0_0_0_1_3 -> loc0_0_1_4_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  49: loc0_0_0_1_3 -> loc0_0_4_4_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  50: loc0_0_0_1_3 -> loc0_0_2_4_5
+      when ((nsnt10 >= F  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  51: loc0_0_0_1_3 -> loc0_0_3_4_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  52: loc0_0_0_1_3 -> loc0_0_4_4_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  53: loc0_0_0_1_3 -> loc0_0_2_1_3
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  54: loc0_0_0_1_3 -> loc0_0_1_2_3
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  55: loc0_0_0_1_3 -> loc0_0_1_1_3
+      when (((nsnt10 >= 1  &&  nsnt11 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  56: loc0_0_0_1_3 -> loc0_0_2_2_3
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  57: loc0_0_0_1_3 -> loc0_0_3_1_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  58: loc0_0_0_1_3 -> loc0_0_4_1_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  59: loc0_0_0_1_3 -> loc0_0_3_2_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  60: loc0_0_0_1_3 -> loc0_0_4_3_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  61: loc0_0_0_1_3 -> loc0_0_3_3_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  62: loc0_0_0_1_3 -> loc0_0_3_4_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  63: loc0_0_0_1_3 -> loc0_0_4_2_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  64: loc0_0_0_1_3 -> loc0_0_0_2_3
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  65: loc0_0_0_1_3 -> loc0_0_4_4_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  66: loc0_0_0_1_3 -> loc0_0_3_4_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  67: loc0_0_0_1_3 -> loc0_0_2_4_6
+      when (((nsnt10 >= F  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  68: loc0_0_0_1_3 -> loc0_0_1_4_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  69: loc0_0_0_1_3 -> loc0_0_0_4_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  70: loc0_0_0_1_3 -> loc0_0_4_3_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  71: loc0_0_0_1_3 -> loc0_0_3_3_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  72: loc0_0_0_1_3 -> loc0_0_2_3_6
+      when (((nsnt10 >= F  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  73: loc0_0_0_1_3 -> loc0_0_1_3_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  74: loc0_0_0_1_3 -> loc0_0_0_3_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  75: loc0_0_0_1_3 -> loc0_0_4_2_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  76: loc0_0_0_1_3 -> loc0_0_3_2_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  77: loc0_0_0_1_3 -> loc0_0_2_2_6
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  78: loc0_0_0_1_3 -> loc0_0_1_2_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  79: loc0_0_0_1_3 -> loc0_0_0_2_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  80: loc0_0_0_1_3 -> loc0_0_4_1_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  81: loc0_0_0_1_3 -> loc0_0_3_1_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  82: loc0_0_0_1_3 -> loc0_0_2_1_6
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  83: loc0_0_0_1_3 -> loc0_0_1_1_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  84: loc0_0_0_1_3 -> loc0_0_0_1_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  85: loc0_0_1_2_3 -> loc0_0_3_3_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  86: loc0_0_1_2_3 -> loc0_0_2_3_5
+      when ((nsnt10 >= F  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  87: loc0_0_1_2_3 -> loc0_0_4_3_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  88: loc0_0_1_2_3 -> loc0_0_1_3_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  89: loc0_0_1_2_3 -> loc0_0_1_4_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  90: loc0_0_1_2_3 -> loc0_0_4_4_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  91: loc0_0_1_2_3 -> loc0_0_2_4_5
+      when ((nsnt10 >= F  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  92: loc0_0_1_2_3 -> loc0_0_3_4_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  93: loc0_0_1_2_3 -> loc0_0_4_4_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  94: loc0_0_1_2_3 -> loc0_0_2_2_3
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  95: loc0_0_1_2_3 -> loc0_0_3_2_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  96: loc0_0_1_2_3 -> loc0_0_4_3_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  97: loc0_0_1_2_3 -> loc0_0_3_3_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  98: loc0_0_1_2_3 -> loc0_0_3_4_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  99: loc0_0_1_2_3 -> loc0_0_4_2_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  100: loc0_0_1_2_3 -> loc0_0_4_4_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  101: loc0_0_1_2_3 -> loc0_0_3_4_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  102: loc0_0_1_2_3 -> loc0_0_2_4_6
+      when (((nsnt10 >= F  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  103: loc0_0_1_2_3 -> loc0_0_1_4_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  104: loc0_0_1_2_3 -> loc0_0_4_3_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  105: loc0_0_1_2_3 -> loc0_0_3_3_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  106: loc0_0_1_2_3 -> loc0_0_2_3_6
+      when (((nsnt10 >= F  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  107: loc0_0_1_2_3 -> loc0_0_1_3_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  108: loc0_0_1_2_3 -> loc0_0_4_2_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  109: loc0_0_1_2_3 -> loc0_0_3_2_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  110: loc0_0_1_2_3 -> loc0_0_2_2_6
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  111: loc0_0_1_2_3 -> loc0_0_1_2_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  112: loc0_0_1_1_3 -> loc0_0_3_3_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  113: loc0_0_1_1_3 -> loc0_0_2_3_5
+      when ((nsnt10 >= F  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  114: loc0_0_1_1_3 -> loc0_0_4_3_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  115: loc0_0_1_1_3 -> loc0_0_1_3_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  116: loc0_0_1_1_3 -> loc0_0_1_4_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  117: loc0_0_1_1_3 -> loc0_0_4_4_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  118: loc0_0_1_1_3 -> loc0_0_2_4_5
+      when ((nsnt10 >= F  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  119: loc0_0_1_1_3 -> loc0_0_3_4_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  120: loc0_0_1_1_3 -> loc0_0_4_4_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  121: loc0_0_1_1_3 -> loc0_0_2_1_3
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  122: loc0_0_1_1_3 -> loc0_0_1_2_3
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  123: loc0_0_1_1_3 -> loc0_0_2_2_3
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  124: loc0_0_1_1_3 -> loc0_0_3_1_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  125: loc0_0_1_1_3 -> loc0_0_4_1_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  126: loc0_0_1_1_3 -> loc0_0_3_2_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  127: loc0_0_1_1_3 -> loc0_0_4_3_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  128: loc0_0_1_1_3 -> loc0_0_3_3_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  129: loc0_0_1_1_3 -> loc0_0_3_4_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  130: loc0_0_1_1_3 -> loc0_0_4_2_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  131: loc0_0_1_1_3 -> loc0_0_4_4_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  132: loc0_0_1_1_3 -> loc0_0_3_4_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  133: loc0_0_1_1_3 -> loc0_0_2_4_6
+      when (((nsnt10 >= F  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  134: loc0_0_1_1_3 -> loc0_0_1_4_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  135: loc0_0_1_1_3 -> loc0_0_4_3_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  136: loc0_0_1_1_3 -> loc0_0_3_3_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  137: loc0_0_1_1_3 -> loc0_0_2_3_6
+      when (((nsnt10 >= F  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  138: loc0_0_1_1_3 -> loc0_0_1_3_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  139: loc0_0_1_1_3 -> loc0_0_4_2_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  140: loc0_0_1_1_3 -> loc0_0_3_2_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  141: loc0_0_1_1_3 -> loc0_0_2_2_6
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  142: loc0_0_1_1_3 -> loc0_0_1_2_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  143: loc0_0_1_1_3 -> loc0_0_4_1_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  144: loc0_0_1_1_3 -> loc0_0_3_1_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  145: loc0_0_1_1_3 -> loc0_0_2_1_6
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  146: loc0_0_1_1_3 -> loc0_0_1_1_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  147: loc0_0_2_2_3 -> loc0_0_3_3_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  148: loc0_0_2_2_3 -> loc0_0_2_3_5
+      when ((nsnt10 >= F  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  149: loc0_0_2_2_3 -> loc0_0_4_3_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  150: loc0_0_2_2_3 -> loc0_0_4_4_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  151: loc0_0_2_2_3 -> loc0_0_2_4_5
+      when ((nsnt10 >= F  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  152: loc0_0_2_2_3 -> loc0_0_3_4_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  153: loc0_0_2_2_3 -> loc0_0_4_4_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  154: loc0_0_2_2_3 -> loc0_0_3_2_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  155: loc0_0_2_2_3 -> loc0_0_4_3_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  156: loc0_0_2_2_3 -> loc0_0_3_3_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  157: loc0_0_2_2_3 -> loc0_0_3_4_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  158: loc0_0_2_2_3 -> loc0_0_4_2_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  159: loc0_0_2_2_3 -> loc0_0_4_4_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  160: loc0_0_2_2_3 -> loc0_0_3_4_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  161: loc0_0_2_2_3 -> loc0_0_2_4_6
+      when (((nsnt10 >= F  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  162: loc0_0_2_2_3 -> loc0_0_4_3_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  163: loc0_0_2_2_3 -> loc0_0_3_3_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  164: loc0_0_2_2_3 -> loc0_0_2_3_6
+      when (((nsnt10 >= F  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  165: loc0_0_2_2_3 -> loc0_0_4_2_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  166: loc0_0_2_2_3 -> loc0_0_3_2_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  167: loc0_0_2_2_3 -> loc0_0_2_2_6
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  168: loc0_0_3_1_4 -> loc0_0_3_1_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  169: loc0_0_2_0_3 -> loc0_0_3_3_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  170: loc0_0_2_0_3 -> loc0_0_2_3_5
+      when ((nsnt10 >= F  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  171: loc0_0_2_0_3 -> loc0_0_4_3_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  172: loc0_0_2_0_3 -> loc0_0_4_4_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  173: loc0_0_2_0_3 -> loc0_0_2_4_5
+      when ((nsnt10 >= F  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  174: loc0_0_2_0_3 -> loc0_0_3_4_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  175: loc0_0_2_0_3 -> loc0_0_4_4_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  176: loc0_0_2_0_3 -> loc0_0_2_1_3
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  177: loc0_0_2_0_3 -> loc0_0_2_2_3
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  178: loc0_0_2_0_3 -> loc0_0_3_1_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  179: loc0_0_2_0_3 -> loc0_0_4_1_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  180: loc0_0_2_0_3 -> loc0_0_3_2_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  181: loc0_0_2_0_3 -> loc0_0_4_0_4
+      when ((nsnt10 >= (N - T)  &&  (nsnt11 >= 1  ||  nsnt11 == 0)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  182: loc0_0_2_0_3 -> loc0_0_3_0_4
+      when ((nsnt10 >= MAJ  &&  (nsnt11 >= 1  ||  nsnt11 == 0)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  183: loc0_0_2_0_3 -> loc0_0_4_3_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  184: loc0_0_2_0_3 -> loc0_0_3_3_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  185: loc0_0_2_0_3 -> loc0_0_3_4_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  186: loc0_0_2_0_3 -> loc0_0_4_2_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  187: loc0_0_2_0_3 -> loc0_0_4_4_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  188: loc0_0_2_0_3 -> loc0_0_3_4_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  189: loc0_0_2_0_3 -> loc0_0_2_4_6
+      when (((nsnt10 >= F  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  190: loc0_0_2_0_3 -> loc0_0_4_3_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  191: loc0_0_2_0_3 -> loc0_0_3_3_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  192: loc0_0_2_0_3 -> loc0_0_2_3_6
+      when (((nsnt10 >= F  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  193: loc0_0_2_0_3 -> loc0_0_4_2_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  194: loc0_0_2_0_3 -> loc0_0_3_2_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  195: loc0_0_2_0_3 -> loc0_0_2_2_6
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  196: loc0_0_2_0_3 -> loc0_0_4_1_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  197: loc0_0_2_0_3 -> loc0_0_3_1_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  198: loc0_0_2_0_3 -> loc0_0_2_1_6
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  199: loc0_0_2_0_3 -> loc0_0_4_0_6
+      when (((nsnt10 >= (N - T)  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  200: loc0_0_2_0_3 -> loc0_0_3_0_6
+      when (((nsnt10 >= MAJ  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  201: loc0_0_2_0_3 -> loc0_0_2_0_6
+      when (((nsnt10 >= F  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  202: loc0_0_4_1_4 -> loc0_0_4_1_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  203: loc0_0_3_2_4 -> loc0_0_3_2_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  204: loc0_0_4_0_4 -> loc0_0_4_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  205: loc0_0_3_0_4 -> loc0_0_3_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  206: loc0_0_4_3_4 -> loc0_0_4_3_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  207: loc0_0_3_3_4 -> loc0_0_3_3_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  208: loc0_0_3_4_4 -> loc0_0_3_4_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  209: loc0_0_1_0_3 -> loc0_0_3_3_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  210: loc0_0_1_0_3 -> loc0_0_2_3_5
+      when ((nsnt10 >= F  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  211: loc0_0_1_0_3 -> loc0_0_4_3_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  212: loc0_0_1_0_3 -> loc0_0_1_3_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  213: loc0_0_1_0_3 -> loc0_0_1_4_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  214: loc0_0_1_0_3 -> loc0_0_4_4_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  215: loc0_0_1_0_3 -> loc0_0_2_4_5
+      when ((nsnt10 >= F  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  216: loc0_0_1_0_3 -> loc0_0_3_4_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  217: loc0_0_1_0_3 -> loc0_0_4_4_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  218: loc0_0_1_0_3 -> loc0_0_2_1_3
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  219: loc0_0_1_0_3 -> loc0_0_1_2_3
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  220: loc0_0_1_0_3 -> loc0_0_1_1_3
+      when (((nsnt10 >= 1  &&  nsnt11 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  221: loc0_0_1_0_3 -> loc0_0_2_2_3
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  222: loc0_0_1_0_3 -> loc0_0_3_1_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  223: loc0_0_1_0_3 -> loc0_0_2_0_3
+      when (((nsnt10 >= F  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  224: loc0_0_1_0_3 -> loc0_0_4_1_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  225: loc0_0_1_0_3 -> loc0_0_3_2_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  226: loc0_0_1_0_3 -> loc0_0_4_0_4
+      when ((nsnt10 >= (N - T)  &&  (nsnt11 >= 1  ||  nsnt11 == 0)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  227: loc0_0_1_0_3 -> loc0_0_3_0_4
+      when ((nsnt10 >= MAJ  &&  (nsnt11 >= 1  ||  nsnt11 == 0)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  228: loc0_0_1_0_3 -> loc0_0_4_3_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  229: loc0_0_1_0_3 -> loc0_0_3_3_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  230: loc0_0_1_0_3 -> loc0_0_3_4_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  231: loc0_0_1_0_3 -> loc0_0_4_2_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  232: loc0_0_1_0_3 -> loc0_0_4_4_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  233: loc0_0_1_0_3 -> loc0_0_3_4_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  234: loc0_0_1_0_3 -> loc0_0_2_4_6
+      when (((nsnt10 >= F  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  235: loc0_0_1_0_3 -> loc0_0_1_4_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  236: loc0_0_1_0_3 -> loc0_0_4_3_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  237: loc0_0_1_0_3 -> loc0_0_3_3_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  238: loc0_0_1_0_3 -> loc0_0_2_3_6
+      when (((nsnt10 >= F  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  239: loc0_0_1_0_3 -> loc0_0_1_3_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  240: loc0_0_1_0_3 -> loc0_0_4_2_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  241: loc0_0_1_0_3 -> loc0_0_3_2_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  242: loc0_0_1_0_3 -> loc0_0_2_2_6
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  243: loc0_0_1_0_3 -> loc0_0_1_2_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  244: loc0_0_1_0_3 -> loc0_0_4_1_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  245: loc0_0_1_0_3 -> loc0_0_3_1_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  246: loc0_0_1_0_3 -> loc0_0_2_1_6
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  247: loc0_0_1_0_3 -> loc0_0_1_1_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  248: loc0_0_1_0_3 -> loc0_0_4_0_6
+      when (((nsnt10 >= (N - T)  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  249: loc0_0_1_0_3 -> loc0_0_3_0_6
+      when (((nsnt10 >= MAJ  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  250: loc0_0_1_0_3 -> loc0_0_2_0_6
+      when (((nsnt10 >= F  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  251: loc0_0_1_0_3 -> loc0_0_1_0_6
+      when (((nsnt10 >= 1  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  252: loc0_0_4_2_4 -> loc0_0_4_2_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  253: loc0_0_0_2_3 -> loc0_0_0_3_5
+      when (((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  254: loc0_0_0_2_3 -> loc0_0_3_3_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  255: loc0_0_0_2_3 -> loc0_0_2_3_5
+      when ((nsnt10 >= F  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  256: loc0_0_0_2_3 -> loc0_0_4_3_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  257: loc0_0_0_2_3 -> loc0_0_1_3_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  258: loc0_0_0_2_3 -> loc0_0_0_4_5
+      when (((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  259: loc0_0_0_2_3 -> loc0_0_1_4_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  260: loc0_0_0_2_3 -> loc0_0_4_4_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  261: loc0_0_0_2_3 -> loc0_0_2_4_5
+      when ((nsnt10 >= F  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  262: loc0_0_0_2_3 -> loc0_0_3_4_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  263: loc0_0_0_2_3 -> loc0_0_4_4_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  264: loc0_0_0_2_3 -> loc0_0_1_2_3
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  265: loc0_0_0_2_3 -> loc0_0_2_2_3
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  266: loc0_0_0_2_3 -> loc0_0_3_2_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  267: loc0_0_0_2_3 -> loc0_0_4_3_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  268: loc0_0_0_2_3 -> loc0_0_3_3_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  269: loc0_0_0_2_3 -> loc0_0_3_4_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  270: loc0_0_0_2_3 -> loc0_0_4_2_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  271: loc0_0_0_2_3 -> loc0_0_4_4_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  272: loc0_0_0_2_3 -> loc0_0_3_4_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  273: loc0_0_0_2_3 -> loc0_0_2_4_6
+      when (((nsnt10 >= F  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  274: loc0_0_0_2_3 -> loc0_0_1_4_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  275: loc0_0_0_2_3 -> loc0_0_0_4_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  276: loc0_0_0_2_3 -> loc0_0_4_3_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  277: loc0_0_0_2_3 -> loc0_0_3_3_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  278: loc0_0_0_2_3 -> loc0_0_2_3_6
+      when (((nsnt10 >= F  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  279: loc0_0_0_2_3 -> loc0_0_1_3_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  280: loc0_0_0_2_3 -> loc0_0_0_3_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  281: loc0_0_0_2_3 -> loc0_0_4_2_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  282: loc0_0_0_2_3 -> loc0_0_3_2_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  283: loc0_0_0_2_3 -> loc0_0_2_2_6
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  284: loc0_0_0_2_3 -> loc0_0_1_2_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  285: loc0_0_0_2_3 -> loc0_0_0_2_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  286: loc0_0_0_0_3 -> loc0_0_0_3_5
+      when (((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  287: loc0_0_0_0_3 -> loc0_0_3_3_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  288: loc0_0_0_0_3 -> loc0_0_2_3_5
+      when ((nsnt10 >= F  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  289: loc0_0_0_0_3 -> loc0_0_4_3_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  290: loc0_0_0_0_3 -> loc0_0_1_3_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  291: loc0_0_0_0_3 -> loc0_0_0_4_5
+      when (((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  292: loc0_0_0_0_3 -> loc0_0_1_4_5
+      when ((nsnt10 >= 1  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  293: loc0_0_0_0_3 -> loc0_0_4_4_5
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  294: loc0_0_0_0_3 -> loc0_0_2_4_5
+      when ((nsnt10 >= F  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  295: loc0_0_0_0_3 -> loc0_0_3_4_5
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  296: loc0_0_0_0_3 -> loc0_0_4_4_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  297: loc0_0_0_0_3 -> loc0_0_2_1_3
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  298: loc0_0_0_0_3 -> loc0_0_0_1_3
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  299: loc0_0_0_0_3 -> loc0_0_1_2_3
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  300: loc0_0_0_0_3 -> loc0_0_1_1_3
+      when (((nsnt10 >= 1  &&  nsnt11 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  301: loc0_0_0_0_3 -> loc0_0_2_2_3
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  302: loc0_0_0_0_3 -> loc0_0_3_1_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  303: loc0_0_0_0_3 -> loc0_0_2_0_3
+      when (((nsnt10 >= F  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  304: loc0_0_0_0_3 -> loc0_0_4_1_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  305: loc0_0_0_0_3 -> loc0_0_3_2_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  306: loc0_0_0_0_3 -> loc0_0_4_0_4
+      when ((nsnt10 >= (N - T)  &&  (nsnt11 >= 1  ||  nsnt11 == 0)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  307: loc0_0_0_0_3 -> loc0_0_3_0_4
+      when ((nsnt10 >= MAJ  &&  (nsnt11 >= 1  ||  nsnt11 == 0)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  308: loc0_0_0_0_3 -> loc0_0_4_3_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  309: loc0_0_0_0_3 -> loc0_0_3_3_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  310: loc0_0_0_0_3 -> loc0_0_3_4_4
+      when ((nsnt10 >= MAJ  &&  nsnt11 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  311: loc0_0_0_0_3 -> loc0_0_1_0_3
+      when (((nsnt10 >= 1  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  312: loc0_0_0_0_3 -> loc0_0_4_2_4
+      when ((nsnt10 >= (N - T)  &&  nsnt11 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  313: loc0_0_0_0_3 -> loc0_0_0_2_3
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  314: loc0_0_0_0_3 -> loc0_0_4_4_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  315: loc0_0_0_0_3 -> loc0_0_3_4_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  316: loc0_0_0_0_3 -> loc0_0_2_4_6
+      when (((nsnt10 >= F  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  317: loc0_0_0_0_3 -> loc0_0_1_4_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  318: loc0_0_0_0_3 -> loc0_0_0_4_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  319: loc0_0_0_0_3 -> loc0_0_4_3_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  320: loc0_0_0_0_3 -> loc0_0_3_3_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  321: loc0_0_0_0_3 -> loc0_0_2_3_6
+      when (((nsnt10 >= F  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  322: loc0_0_0_0_3 -> loc0_0_1_3_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  323: loc0_0_0_0_3 -> loc0_0_0_3_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  324: loc0_0_0_0_3 -> loc0_0_4_2_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  325: loc0_0_0_0_3 -> loc0_0_3_2_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  326: loc0_0_0_0_3 -> loc0_0_2_2_6
+      when (((nsnt10 >= F  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  327: loc0_0_0_0_3 -> loc0_0_1_2_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  328: loc0_0_0_0_3 -> loc0_0_0_2_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  329: loc0_0_0_0_3 -> loc0_0_4_1_6
+      when (((nsnt10 >= (N - T)  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  330: loc0_0_0_0_3 -> loc0_0_3_1_6
+      when (((nsnt10 >= MAJ  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  331: loc0_0_0_0_3 -> loc0_0_2_1_6
+      when (((nsnt10 >= F  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  332: loc0_0_0_0_3 -> loc0_0_1_1_6
+      when (((nsnt10 >= 1  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  333: loc0_0_0_0_3 -> loc0_0_0_1_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  nsnt11 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  334: loc0_0_0_0_3 -> loc0_0_4_0_6
+      when (((nsnt10 >= (N - T)  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  335: loc0_0_0_0_3 -> loc0_0_3_0_6
+      when (((nsnt10 >= MAJ  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  336: loc0_0_0_0_3 -> loc0_0_2_0_6
+      when (((nsnt10 >= F  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  337: loc0_0_0_0_3 -> loc0_0_1_0_6
+      when (((nsnt10 >= 1  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  338: loc0_0_0_0_3 -> loc0_0_0_0_6
+      when ((((nsnt10 >= 1  ||  nsnt10 == 0)  &&  (nsnt11 >= 1  ||  nsnt11 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  339: loc3_4_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  340: loc3_4_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  341: loc1_4_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  342: loc1_4_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  343: loc0_4_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  344: loc0_4_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  345: loc1_2_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  346: loc1_2_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  347: loc1_3_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  348: loc1_3_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  349: loc2_3_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  350: loc2_3_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  351: loc2_4_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  352: loc2_4_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  353: loc4_4_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  354: loc4_4_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  355: loc4_4_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  356: loc4_0_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  357: loc4_0_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  358: loc4_3_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  359: loc4_3_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  360: loc4_4_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  361: loc4_4_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  362: loc4_1_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  363: loc4_1_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  364: loc0_3_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  365: loc0_3_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  366: loc0_3_0_0_2 -> loc1_4_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  367: loc0_3_0_0_2 -> loc0_4_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  368: loc0_3_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  369: loc0_3_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  370: loc0_3_0_0_2 -> loc1_3_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  371: loc0_3_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  372: loc0_3_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  373: loc0_3_0_0_2 -> loc0_3_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  374: loc0_3_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  375: loc0_3_0_0_2 -> loc1_4_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  376: loc0_3_0_0_2 -> loc0_4_0_0_7
+      when (((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  377: loc0_3_0_0_2 -> loc1_3_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  378: loc0_3_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  379: loc0_3_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  380: loc0_3_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  381: loc0_3_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  382: loc0_3_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  383: loc0_3_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  384: loc0_3_0_0_2 -> loc1_3_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  385: loc0_3_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  386: loc0_3_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  387: loc0_3_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  388: loc0_3_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  389: loc1_3_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  390: loc1_3_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  391: loc1_3_0_0_2 -> loc1_4_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  392: loc1_3_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  393: loc1_3_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  394: loc1_3_0_0_2 -> loc1_3_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  395: loc1_3_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  396: loc1_3_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  397: loc1_3_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  398: loc1_3_0_0_2 -> loc1_4_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  399: loc1_3_0_0_2 -> loc1_3_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  400: loc1_3_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  401: loc1_3_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  402: loc1_3_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  403: loc1_3_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  404: loc1_3_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  405: loc1_3_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  406: loc1_3_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  407: loc1_3_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  408: loc1_3_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  409: loc1_3_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  410: loc2_3_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  411: loc2_3_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  412: loc2_3_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  413: loc2_3_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  414: loc2_3_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  415: loc2_3_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  416: loc2_3_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  417: loc2_3_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  418: loc2_3_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  419: loc2_3_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  420: loc2_3_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  421: loc2_3_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  422: loc2_3_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  423: loc2_3_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  424: loc2_3_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  425: loc2_3_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  426: loc3_1_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  427: loc3_1_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  428: loc3_3_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  429: loc3_3_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  430: loc3_3_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  431: loc3_3_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  432: loc3_3_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  433: loc3_3_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  434: loc3_3_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  435: loc3_3_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  436: loc3_3_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  437: loc3_3_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  438: loc3_3_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  439: loc3_3_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  440: loc3_3_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  441: loc2_1_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  442: loc2_1_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  443: loc3_1_0_0_2 -> loc4_1_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  444: loc3_1_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  445: loc3_1_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  446: loc3_1_0_0_2 -> loc3_1_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  447: loc3_1_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  448: loc3_1_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  449: loc3_1_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  450: loc3_1_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  451: loc3_1_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  452: loc3_1_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  453: loc3_1_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  454: loc3_1_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  455: loc3_1_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  456: loc3_1_0_0_2 -> loc4_1_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  457: loc3_1_0_0_2 -> loc3_1_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  458: loc3_1_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  459: loc3_1_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  460: loc3_1_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  461: loc3_1_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  462: loc3_1_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  463: loc3_1_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  464: loc4_2_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  465: loc4_2_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  466: loc3_0_0_0_2 -> loc4_0_0_0_6
+      when (((nsnt00 >= (N - T)  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  467: loc3_0_0_0_2 -> loc4_1_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  468: loc3_0_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  469: loc3_0_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  470: loc3_0_0_0_2 -> loc3_1_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  471: loc3_0_0_0_2 -> loc3_0_0_0_6
+      when (((nsnt00 >= MAJ  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  472: loc3_0_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  473: loc3_0_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  474: loc3_0_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  475: loc3_0_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  476: loc3_0_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  477: loc3_0_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  478: loc3_0_0_0_2 -> loc4_0_0_0_7
+      when ((nsnt00 >= (N - T)  &&  (nsnt01 >= 1  ||  nsnt01 == 0)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  479: loc3_0_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  480: loc3_0_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  481: loc3_0_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  482: loc3_0_0_0_2 -> loc4_1_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  483: loc3_0_0_0_2 -> loc3_1_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  484: loc3_0_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  485: loc3_0_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  486: loc3_0_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  487: loc3_0_0_0_2 -> loc3_1_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  488: loc3_0_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  489: loc3_0_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  490: loc3_0_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  491: loc3_2_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  492: loc3_2_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  493: loc3_2_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  494: loc3_2_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  495: loc3_2_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  496: loc3_2_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  497: loc3_2_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  498: loc3_2_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  499: loc3_2_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  500: loc3_2_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  501: loc3_2_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  502: loc3_2_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  503: loc3_2_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  504: loc3_2_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  505: loc3_2_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  506: loc3_2_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  507: loc3_2_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  508: loc3_2_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  509: loc0_2_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  510: loc0_2_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  511: loc0_2_0_0_2 -> loc1_4_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  512: loc0_2_0_0_2 -> loc0_4_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  513: loc0_2_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  514: loc0_2_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  515: loc0_2_0_0_2 -> loc1_3_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  516: loc0_2_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  517: loc0_2_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  518: loc0_2_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  519: loc0_2_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  520: loc0_2_0_0_2 -> loc2_2_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  521: loc0_2_0_0_2 -> loc1_2_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  522: loc0_2_0_0_2 -> loc0_2_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  523: loc0_2_0_0_2 -> loc0_3_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  524: loc0_2_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  525: loc0_2_0_0_2 -> loc1_4_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  526: loc0_2_0_0_2 -> loc0_4_0_0_7
+      when (((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  527: loc0_2_0_0_2 -> loc1_2_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  528: loc0_2_0_0_2 -> loc1_3_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  529: loc0_2_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  530: loc0_2_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  531: loc0_2_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  532: loc0_2_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  533: loc0_2_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  534: loc0_2_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  535: loc0_2_0_0_2 -> loc0_3_0_0_2
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  536: loc0_2_0_0_2 -> loc1_3_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  537: loc0_2_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  538: loc0_2_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  539: loc0_2_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  540: loc0_2_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  541: loc0_2_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  542: loc0_2_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  543: loc0_2_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  544: loc0_2_0_0_2 -> loc1_2_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  545: loc0_2_0_0_2 -> loc2_2_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  546: loc0_2_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  547: loc0_2_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  548: loc1_2_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  549: loc1_2_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  550: loc1_2_0_0_2 -> loc1_4_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  551: loc1_2_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  552: loc1_2_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  553: loc1_2_0_0_2 -> loc1_3_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  554: loc1_2_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  555: loc1_2_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  556: loc1_2_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  557: loc1_2_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  558: loc1_2_0_0_2 -> loc2_2_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  559: loc1_2_0_0_2 -> loc1_2_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  560: loc1_2_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  561: loc1_2_0_0_2 -> loc1_4_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  562: loc1_2_0_0_2 -> loc1_2_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  563: loc1_2_0_0_2 -> loc1_3_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  564: loc1_2_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  565: loc1_2_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  566: loc1_2_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  567: loc1_2_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  568: loc1_2_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  569: loc1_2_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  570: loc1_2_0_0_2 -> loc1_3_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  571: loc1_2_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  572: loc1_2_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  573: loc1_2_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  574: loc1_2_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  575: loc1_2_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  576: loc1_2_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  577: loc1_2_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  578: loc1_2_0_0_2 -> loc2_2_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  579: loc1_2_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  580: loc1_2_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  581: loc2_1_0_0_2 -> loc4_1_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  582: loc2_1_0_0_2 -> loc2_1_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  583: loc2_1_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  584: loc2_1_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  585: loc2_1_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  586: loc2_1_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  587: loc2_1_0_0_2 -> loc3_1_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  588: loc2_1_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  589: loc2_1_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  590: loc2_1_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  591: loc2_1_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  592: loc2_1_0_0_2 -> loc2_2_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  593: loc2_1_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  594: loc2_1_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  595: loc2_1_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  596: loc2_1_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  597: loc2_1_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  598: loc2_1_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  599: loc2_1_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  600: loc2_1_0_0_2 -> loc4_1_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  601: loc2_1_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  602: loc2_1_0_0_2 -> loc3_1_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  603: loc2_1_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  604: loc2_1_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  605: loc2_1_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  606: loc2_1_0_0_2 -> loc2_1_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  607: loc2_1_0_0_2 -> loc3_1_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  608: loc2_1_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  609: loc2_1_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  610: loc2_1_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  611: loc2_1_0_0_2 -> loc2_2_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  612: loc2_1_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  613: loc2_1_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  614: loc2_2_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  615: loc2_2_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  616: loc2_2_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  617: loc2_2_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  618: loc2_2_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  619: loc2_2_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  620: loc2_2_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  621: loc2_2_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  622: loc2_2_0_0_2 -> loc2_2_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  623: loc2_2_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  624: loc2_2_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  625: loc2_2_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  626: loc2_2_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  627: loc2_2_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  628: loc2_2_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  629: loc2_2_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  630: loc2_2_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  631: loc2_2_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  632: loc2_2_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  633: loc2_2_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  634: loc2_2_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  635: loc2_2_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  636: loc2_2_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  637: loc2_2_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  638: loc2_2_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  639: loc2_2_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  640: loc2_2_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  641: loc2_0_0_0_2 -> loc4_0_0_0_6
+      when (((nsnt00 >= (N - T)  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  642: loc2_0_0_0_2 -> loc4_1_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  643: loc2_0_0_0_2 -> loc2_1_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  644: loc2_0_0_0_2 -> loc2_0_0_0_6
+      when (((nsnt00 >= F  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  645: loc2_0_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  646: loc2_0_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  647: loc2_0_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  648: loc2_0_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  649: loc2_0_0_0_2 -> loc3_1_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  650: loc2_0_0_0_2 -> loc3_0_0_0_6
+      when (((nsnt00 >= MAJ  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  651: loc2_0_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  652: loc2_0_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  653: loc2_0_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  654: loc2_0_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  655: loc2_0_0_0_2 -> loc2_2_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  656: loc2_0_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  657: loc2_0_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  658: loc2_0_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  659: loc2_0_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  660: loc2_0_0_0_2 -> loc4_0_0_0_7
+      when ((nsnt00 >= (N - T)  &&  (nsnt01 >= 1  ||  nsnt01 == 0)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  661: loc2_0_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  662: loc2_0_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  663: loc2_0_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  664: loc2_0_0_0_2 -> loc4_1_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  665: loc2_0_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  666: loc2_0_0_0_2 -> loc3_1_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  667: loc2_0_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  668: loc2_0_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  669: loc2_0_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  670: loc2_0_0_0_2 -> loc2_1_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  671: loc2_0_0_0_2 -> loc3_1_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  672: loc2_0_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  673: loc2_0_0_0_2 -> loc3_0_0_0_2
+      when (((nsnt00 >= MAJ  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  674: loc2_0_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  675: loc2_0_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  676: loc2_0_0_0_2 -> loc2_1_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  677: loc2_0_0_0_2 -> loc2_2_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  678: loc2_0_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  679: loc2_0_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  680: loc0_1_0_0_2 -> loc4_1_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  681: loc0_1_0_0_2 -> loc2_1_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  682: loc0_1_0_0_2 -> loc1_1_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  683: loc0_1_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  684: loc0_1_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  685: loc0_1_0_0_2 -> loc1_4_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  686: loc0_1_0_0_2 -> loc0_1_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  687: loc0_1_0_0_2 -> loc0_4_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  688: loc0_1_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  689: loc0_1_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  690: loc0_1_0_0_2 -> loc1_3_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  691: loc0_1_0_0_2 -> loc3_1_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  692: loc0_1_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  693: loc0_1_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  694: loc0_1_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  695: loc0_1_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  696: loc0_1_0_0_2 -> loc2_2_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  697: loc0_1_0_0_2 -> loc1_2_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  698: loc0_1_0_0_2 -> loc0_2_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  699: loc0_1_0_0_2 -> loc0_3_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  700: loc0_1_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  701: loc0_1_0_0_2 -> loc1_4_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  702: loc0_1_0_0_2 -> loc0_4_0_0_7
+      when (((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  703: loc0_1_0_0_2 -> loc1_2_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  704: loc0_1_0_0_2 -> loc1_3_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  705: loc0_1_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  706: loc0_1_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  707: loc0_1_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  708: loc0_1_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  709: loc0_1_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  710: loc0_1_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  711: loc0_1_0_0_2 -> loc4_1_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  712: loc0_1_0_0_2 -> loc0_3_0_0_2
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  713: loc0_1_0_0_2 -> loc1_3_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  714: loc0_1_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  715: loc0_1_0_0_2 -> loc3_1_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  716: loc0_1_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  717: loc0_1_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  718: loc0_1_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  719: loc0_1_0_0_2 -> loc2_1_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  720: loc0_1_0_0_2 -> loc3_1_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  721: loc0_1_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  722: loc0_1_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  723: loc0_1_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  724: loc0_1_0_0_2 -> loc0_2_0_0_2
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  725: loc0_1_0_0_2 -> loc1_2_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  726: loc0_1_0_0_2 -> loc2_1_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  727: loc0_1_0_0_2 -> loc2_2_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  728: loc0_1_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  729: loc0_1_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  730: loc0_1_0_0_2 -> loc1_1_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  731: loc0_1_0_0_2 -> loc1_1_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  732: loc0_1_0_0_2 -> loc1_1_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  733: loc1_1_0_0_2 -> loc4_1_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  734: loc1_1_0_0_2 -> loc2_1_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  735: loc1_1_0_0_2 -> loc1_1_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  736: loc1_1_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  737: loc1_1_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  738: loc1_1_0_0_2 -> loc1_4_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  739: loc1_1_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  740: loc1_1_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  741: loc1_1_0_0_2 -> loc1_3_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  742: loc1_1_0_0_2 -> loc3_1_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  743: loc1_1_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  744: loc1_1_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  745: loc1_1_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  746: loc1_1_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  747: loc1_1_0_0_2 -> loc2_2_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  748: loc1_1_0_0_2 -> loc1_2_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  749: loc1_1_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  750: loc1_1_0_0_2 -> loc1_4_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  751: loc1_1_0_0_2 -> loc1_2_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  752: loc1_1_0_0_2 -> loc1_3_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  753: loc1_1_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  754: loc1_1_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  755: loc1_1_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  756: loc1_1_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  757: loc1_1_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  758: loc1_1_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  759: loc1_1_0_0_2 -> loc4_1_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  760: loc1_1_0_0_2 -> loc1_3_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  761: loc1_1_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  762: loc1_1_0_0_2 -> loc3_1_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  763: loc1_1_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  764: loc1_1_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  765: loc1_1_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  766: loc1_1_0_0_2 -> loc2_1_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  767: loc1_1_0_0_2 -> loc3_1_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  768: loc1_1_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  769: loc1_1_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  770: loc1_1_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  771: loc1_1_0_0_2 -> loc1_2_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  772: loc1_1_0_0_2 -> loc2_1_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  773: loc1_1_0_0_2 -> loc2_2_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  774: loc1_1_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  775: loc1_1_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  776: loc1_1_0_0_2 -> loc1_1_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  777: loc1_1_0_0_2 -> loc1_1_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  778: loc1_0_0_0_2 -> loc4_0_0_0_6
+      when (((nsnt00 >= (N - T)  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  779: loc1_0_0_0_2 -> loc4_1_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  780: loc1_0_0_0_2 -> loc2_1_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  781: loc1_0_0_0_2 -> loc2_0_0_0_6
+      when (((nsnt00 >= F  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  782: loc1_0_0_0_2 -> loc1_0_0_0_6
+      when (((nsnt00 >= 1  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  783: loc1_0_0_0_2 -> loc1_1_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  784: loc1_0_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  785: loc1_0_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  786: loc1_0_0_0_2 -> loc1_4_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  787: loc1_0_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  788: loc1_0_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  789: loc1_0_0_0_2 -> loc1_3_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  790: loc1_0_0_0_2 -> loc3_1_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  791: loc1_0_0_0_2 -> loc3_0_0_0_6
+      when (((nsnt00 >= MAJ  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  792: loc1_0_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  793: loc1_0_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  794: loc1_0_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  795: loc1_0_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  796: loc1_0_0_0_2 -> loc2_2_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  797: loc1_0_0_0_2 -> loc1_2_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  798: loc1_0_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  799: loc1_0_0_0_2 -> loc1_4_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  800: loc1_0_0_0_2 -> loc1_2_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  801: loc1_0_0_0_2 -> loc1_3_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  802: loc1_0_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  803: loc1_0_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  804: loc1_0_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  805: loc1_0_0_0_2 -> loc4_0_0_0_7
+      when ((nsnt00 >= (N - T)  &&  (nsnt01 >= 1  ||  nsnt01 == 0)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  806: loc1_0_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  807: loc1_0_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  808: loc1_0_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  809: loc1_0_0_0_2 -> loc4_1_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  810: loc1_0_0_0_2 -> loc1_3_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  811: loc1_0_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  812: loc1_0_0_0_2 -> loc3_1_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  813: loc1_0_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  814: loc1_0_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  815: loc1_0_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  816: loc1_0_0_0_2 -> loc2_1_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  817: loc1_0_0_0_2 -> loc3_1_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  818: loc1_0_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  819: loc1_0_0_0_2 -> loc3_0_0_0_2
+      when (((nsnt00 >= MAJ  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  820: loc1_0_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  821: loc1_0_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  822: loc1_0_0_0_2 -> loc1_2_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  823: loc1_0_0_0_2 -> loc2_1_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  824: loc1_0_0_0_2 -> loc2_2_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  825: loc1_0_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  826: loc1_0_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  827: loc1_0_0_0_2 -> loc2_0_0_0_2
+      when (((nsnt00 >= F  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  828: loc1_0_0_0_2 -> loc1_1_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  829: loc1_0_0_0_2 -> loc1_1_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  830: loc1_0_0_0_2 -> loc1_1_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  831: loc1_1_0_0_7 -> loc0_0_0_0_3
+      when (1)
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  832: loc1_1_0_0_7 -> loc0_0_0_0_6
+      when (nfaulty < F)
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  833: loc0_0_0_0_2 -> loc4_0_0_0_6
+      when (((nsnt00 >= (N - T)  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  834: loc0_0_0_0_2 -> loc4_1_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  835: loc0_0_0_0_2 -> loc2_1_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  836: loc0_0_0_0_2 -> loc2_0_0_0_6
+      when (((nsnt00 >= F  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  837: loc0_0_0_0_2 -> loc1_0_0_0_6
+      when (((nsnt00 >= 1  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  838: loc0_0_0_0_2 -> loc1_1_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  839: loc0_0_0_0_2 -> loc4_4_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  840: loc0_0_0_0_2 -> loc2_4_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  841: loc0_0_0_0_2 -> loc1_4_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  842: loc0_0_0_0_2 -> loc0_1_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  843: loc0_0_0_0_2 -> loc0_4_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  844: loc0_0_0_0_2 -> loc4_3_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  845: loc0_0_0_0_2 -> loc2_3_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  846: loc0_0_0_0_2 -> loc1_3_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  847: loc0_0_0_0_2 -> loc3_1_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  848: loc0_0_0_0_2 -> loc3_0_0_0_6
+      when (((nsnt00 >= MAJ  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  849: loc0_0_0_0_2 -> loc3_4_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= (N - T))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  850: loc0_0_0_0_2 -> loc3_3_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  851: loc0_0_0_0_2 -> loc4_2_0_0_6
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  852: loc0_0_0_0_2 -> loc3_2_0_0_6
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  853: loc0_0_0_0_2 -> loc2_2_0_0_6
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  854: loc0_0_0_0_2 -> loc1_2_0_0_6
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  855: loc0_0_0_0_2 -> loc0_2_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= F)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  856: loc0_0_0_0_2 -> loc0_3_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= MAJ)  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  857: loc0_0_0_0_2 -> loc0_0_0_0_6
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty < F))
+      do { nfaulty' == (nfaulty + 1); nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  858: loc0_0_0_0_2 -> loc3_4_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  859: loc0_0_0_0_2 -> loc1_4_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  860: loc0_0_0_0_2 -> loc0_4_0_0_7
+      when (((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  861: loc0_0_0_0_2 -> loc1_2_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  862: loc0_0_0_0_2 -> loc1_3_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  863: loc0_0_0_0_2 -> loc2_3_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  864: loc0_0_0_0_2 -> loc2_4_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  865: loc0_0_0_0_2 -> loc4_4_0_0_2
+      when (((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  866: loc0_0_0_0_2 -> loc4_0_0_0_7
+      when ((nsnt00 >= (N - T)  &&  (nsnt01 >= 1  ||  nsnt01 == 0)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  867: loc0_0_0_0_2 -> loc4_3_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  868: loc0_0_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  869: loc0_0_0_0_2 -> loc4_4_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= (N - T)))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  870: loc0_0_0_0_2 -> loc4_1_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  871: loc0_0_0_0_2 -> loc0_3_0_0_2
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  872: loc0_0_0_0_2 -> loc1_3_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  873: loc0_0_0_0_2 -> loc2_3_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  874: loc0_0_0_0_2 -> loc3_1_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  875: loc0_0_0_0_2 -> loc3_3_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= MAJ)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  876: loc0_0_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  877: loc0_0_0_0_2 -> loc3_3_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= MAJ))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  878: loc0_0_0_0_2 -> loc2_1_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  879: loc0_0_0_0_2 -> loc3_1_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  880: loc0_0_0_0_2 -> loc4_2_0_0_7
+      when ((nsnt00 >= (N - T)  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  881: loc0_0_0_0_2 -> loc3_0_0_0_2
+      when (((nsnt00 >= MAJ  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  882: loc0_0_0_0_2 -> loc3_2_0_0_7
+      when ((nsnt00 >= MAJ  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  883: loc0_0_0_0_2 -> loc3_2_0_0_2
+      when (((nsnt00 >= MAJ  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  884: loc0_0_0_0_2 -> loc0_2_0_0_2
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  885: loc0_0_0_0_2 -> loc1_2_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  886: loc0_0_0_0_2 -> loc2_1_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  887: loc0_0_0_0_2 -> loc2_2_0_0_2
+      when (((nsnt00 >= F  &&  nsnt01 >= F)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  888: loc0_0_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  889: loc0_0_0_0_2 -> loc2_2_0_0_7
+      when ((nsnt00 >= F  &&  nsnt01 >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  890: loc0_0_0_0_2 -> loc2_0_0_0_2
+      when (((nsnt00 >= F  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  891: loc0_0_0_0_2 -> loc0_1_0_0_2
+      when ((((nsnt00 >= 1  ||  nsnt00 == 0)  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  892: loc0_0_0_0_2 -> loc1_1_0_0_2
+      when (((nsnt00 >= 1  &&  nsnt01 >= 1)  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  893: loc0_0_0_0_2 -> loc1_0_0_0_2
+      when (((nsnt00 >= 1  &&  (nsnt01 >= 1  ||  nsnt01 == 0))  &&  nfaulty >= F))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  894: loc0_0_0_0_2 -> loc1_1_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == (nsnt10 + 1); nsnt11' == nsnt11; nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  895: loc0_0_0_0_2 -> loc1_1_0_0_7
+      when ((nsnt00 >= 1  &&  nsnt01 >= 1))
+      do { nfaulty' == nfaulty; nsnt10' == nsnt10; nsnt11' == (nsnt11 + 1); nsnt01' == nsnt01; nsnt00' == nsnt00 };
+  }
+} /* Proc */

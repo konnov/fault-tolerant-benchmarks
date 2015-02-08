@@ -1,0 +1,198 @@
+skel Proc {
+  local nrcvdNo, nrcvdYes, pc, some_fail;
+  shared nsntNo, nsntYes, nsntNoF, nsntYesF;
+  parameters N;
+  assumptions (1) {
+    N > 1;
+  }
+
+  locations (24) {
+    loc0_0_0_0: [0; 0; 0; 0];
+    loc0_0_2_0: [0; 0; 2; 0];
+    loc0_1_2_0: [0; 1; 2; 0];
+    loc0_1_5_0: [0; 1; 5; 0];
+    loc0_2_5_0: [0; 2; 5; 0];
+    loc1_1_5_0: [1; 1; 5; 0];
+    loc1_2_5_0: [1; 2; 5; 0];
+    loc2_1_5_0: [2; 1; 5; 0];
+    loc2_2_5_0: [2; 2; 5; 0];
+    loc1_1_4_0: [1; 1; 4; 0];
+    loc2_1_4_0: [2; 1; 4; 0];
+    loc1_2_4_0: [1; 2; 4; 0];
+    loc2_2_4_0: [2; 2; 4; 0];
+    loc0_2_3_0: [0; 2; 3; 0];
+    loc0_0_5_0: [0; 0; 5; 0];
+    loc1_0_5_0: [1; 0; 5; 0];
+    loc2_0_5_0: [2; 0; 5; 0];
+    loc1_0_4_0: [1; 0; 4; 0];
+    loc2_0_4_0: [2; 0; 4; 0];
+    loc0_0_0_1: [0; 0; 0; 1];
+    loc0_0_4_1: [0; 0; 4; 1];
+    loc0_0_5_1: [0; 0; 5; 1];
+    loc0_0_1_0: [0; 0; 1; 0];
+    loc0_0_1_1: [0; 0; 1; 1];
+  }
+
+  inits (25) {
+    (((loc0_0_1_1 + loc0_0_0_1) + loc0_0_1_0) + loc0_0_0_0) == N;
+    loc0_0_2_0 == 0;
+    loc0_1_2_0 == 0;
+    loc0_0_4_1 == 0;
+    loc0_0_5_0 == 0;
+    loc0_0_5_1 == 0;
+    loc0_1_5_0 == 0;
+    loc0_2_5_0 == 0;
+    loc1_0_5_0 == 0;
+    loc1_1_5_0 == 0;
+    loc1_2_5_0 == 0;
+    loc2_0_5_0 == 0;
+    loc2_1_5_0 == 0;
+    loc2_2_5_0 == 0;
+    loc1_0_4_0 == 0;
+    loc1_1_4_0 == 0;
+    loc2_1_4_0 == 0;
+    loc1_2_4_0 == 0;
+    loc2_2_4_0 == 0;
+    loc2_0_4_0 == 0;
+    loc0_2_3_0 == 0;
+    nsntNo == 0;
+    nsntYes == 0;
+    nsntNoF == 0;
+    nsntYesF == 0;
+  }
+
+  rules (44) {
+  0: loc0_2_3_0 -> loc0_2_5_0
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  1: loc2_0_4_0 -> loc2_0_5_0
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  2: loc2_2_4_0 -> loc2_2_5_0
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  3: loc1_2_4_0 -> loc1_2_5_0
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  4: loc2_1_4_0 -> loc2_1_5_0
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  5: loc1_1_4_0 -> loc1_1_5_0
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  6: loc1_0_4_0 -> loc1_0_5_0
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  7: loc0_0_1_1 -> loc0_0_5_1
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == (nsntYesF + 1) };
+  8: loc0_0_1_1 -> loc0_0_4_1
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  9: loc0_0_4_1 -> loc0_0_5_1
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  10: loc0_0_0_1 -> loc0_0_5_1
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == (nsntNoF + 1); nsntYesF' == nsntYesF };
+  11: loc0_0_0_1 -> loc0_0_4_1
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  12: loc0_0_0_0 -> loc0_0_5_0
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == (nsntNoF + 1); nsntYesF' == nsntYesF };
+  13: loc0_0_0_0 -> loc0_0_2_0
+      when (1)
+      do { nsntNo' == (nsntNo + 1); nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  14: loc0_1_2_0 -> loc0_2_3_0
+      when (((nsntYes + nsntYesF) >= N  &&  ((nsntNo + nsntNoF) >= 1  ||  (nsntNo + nsntNoF) == 0)))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  15: loc0_1_2_0 -> loc2_2_4_0
+      when (((nsntYes + nsntYesF) >= N  &&  (nsntNo + nsntNoF) >= N))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  16: loc0_1_2_0 -> loc1_2_4_0
+      when (((nsntYes + nsntYesF) >= N  &&  (nsntNo + nsntNoF) >= 1))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  17: loc0_1_2_0 -> loc2_1_4_0
+      when (((nsntYes + nsntYesF) >= 1  &&  (nsntNo + nsntNoF) >= N))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  18: loc0_1_2_0 -> loc1_1_4_0
+      when (((nsntYes + nsntYesF) >= 1  &&  (nsntNo + nsntNoF) >= 1))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  19: loc0_1_2_0 -> loc2_2_5_0
+      when (((nsntYes + nsntYesF) >= N  &&  (nsntNo + nsntNoF) >= N))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  20: loc0_1_2_0 -> loc2_1_5_0
+      when (((nsntYes + nsntYesF) >= 1  &&  (nsntNo + nsntNoF) >= N))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  21: loc0_1_2_0 -> loc1_2_5_0
+      when (((nsntYes + nsntYesF) >= N  &&  (nsntNo + nsntNoF) >= 1))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  22: loc0_1_2_0 -> loc1_1_5_0
+      when (((nsntYes + nsntYesF) >= 1  &&  (nsntNo + nsntNoF) >= 1))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  23: loc0_1_2_0 -> loc0_2_5_0
+      when (((nsntYes + nsntYesF) >= N  &&  ((nsntNo + nsntNoF) >= 1  ||  (nsntNo + nsntNoF) == 0)))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  24: loc0_1_2_0 -> loc0_1_5_0
+      when (((nsntYes + nsntYesF) >= 1  &&  ((nsntNo + nsntNoF) >= 1  ||  (nsntNo + nsntNoF) == 0)))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  25: loc0_0_2_0 -> loc0_2_3_0
+      when (((nsntYes + nsntYesF) >= N  &&  ((nsntNo + nsntNoF) >= 1  ||  (nsntNo + nsntNoF) == 0)))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  26: loc0_0_2_0 -> loc2_0_4_0
+      when ((((nsntYes + nsntYesF) >= 1  ||  (nsntYes + nsntYesF) == 0)  &&  (nsntNo + nsntNoF) >= N))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  27: loc0_0_2_0 -> loc2_2_4_0
+      when (((nsntYes + nsntYesF) >= N  &&  (nsntNo + nsntNoF) >= N))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  28: loc0_0_2_0 -> loc1_2_4_0
+      when (((nsntYes + nsntYesF) >= N  &&  (nsntNo + nsntNoF) >= 1))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  29: loc0_0_2_0 -> loc2_1_4_0
+      when (((nsntYes + nsntYesF) >= 1  &&  (nsntNo + nsntNoF) >= N))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  30: loc0_0_2_0 -> loc1_1_4_0
+      when (((nsntYes + nsntYesF) >= 1  &&  (nsntNo + nsntNoF) >= 1))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  31: loc0_0_2_0 -> loc1_0_4_0
+      when ((((nsntYes + nsntYesF) >= 1  ||  (nsntYes + nsntYesF) == 0)  &&  (nsntNo + nsntNoF) >= 1))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  32: loc0_0_2_0 -> loc2_2_5_0
+      when (((nsntYes + nsntYesF) >= N  &&  (nsntNo + nsntNoF) >= N))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  33: loc0_0_2_0 -> loc2_1_5_0
+      when (((nsntYes + nsntYesF) >= 1  &&  (nsntNo + nsntNoF) >= N))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  34: loc0_0_2_0 -> loc2_0_5_0
+      when ((((nsntYes + nsntYesF) >= 1  ||  (nsntYes + nsntYesF) == 0)  &&  (nsntNo + nsntNoF) >= N))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  35: loc0_0_2_0 -> loc1_2_5_0
+      when (((nsntYes + nsntYesF) >= N  &&  (nsntNo + nsntNoF) >= 1))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  36: loc0_0_2_0 -> loc1_1_5_0
+      when (((nsntYes + nsntYesF) >= 1  &&  (nsntNo + nsntNoF) >= 1))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  37: loc0_0_2_0 -> loc1_0_5_0
+      when ((((nsntYes + nsntYesF) >= 1  ||  (nsntYes + nsntYesF) == 0)  &&  (nsntNo + nsntNoF) >= 1))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  38: loc0_0_2_0 -> loc0_2_5_0
+      when (((nsntYes + nsntYesF) >= N  &&  ((nsntNo + nsntNoF) >= 1  ||  (nsntNo + nsntNoF) == 0)))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  39: loc0_0_2_0 -> loc0_1_5_0
+      when (((nsntYes + nsntYesF) >= 1  &&  ((nsntNo + nsntNoF) >= 1  ||  (nsntNo + nsntNoF) == 0)))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  40: loc0_0_2_0 -> loc0_0_5_0
+      when ((((nsntYes + nsntYesF) >= 1  ||  (nsntYes + nsntYesF) == 0)  &&  ((nsntNo + nsntNoF) >= 1  ||  (nsntNo + nsntNoF) == 0)))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  41: loc0_0_2_0 -> loc0_1_2_0
+      when (((nsntYes + nsntYesF) >= 1  &&  ((nsntNo + nsntNoF) >= 1  ||  (nsntNo + nsntNoF) == 0)))
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  42: loc0_0_1_0 -> loc0_0_5_0
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == nsntYes; nsntNoF' == nsntNoF; nsntYesF' == (nsntYesF + 1) };
+  43: loc0_0_1_0 -> loc0_0_2_0
+      when (1)
+      do { nsntNo' == nsntNo; nsntYes' == (nsntYes + 1); nsntNoF' == nsntNoF; nsntYesF' == nsntYesF };
+  }
+} /* Proc */

@@ -1,0 +1,80 @@
+skel Proc {
+  local nrcvd, pc;
+  shared nsnt;
+  parameters N, T, F;
+  assumptions (5) {
+    N > (3 * T);
+    N > 3;
+    F >= 0;
+    T >= 1;
+    F <= T;
+  }
+
+  locations (7) {
+    loc0_0: [0; 0];
+    loc1_0: [1; 0];
+    loc3_3: [3; 3];
+    loc2_2: [2; 2];
+    loc0_1: [0; 1];
+    loc1_2: [1; 2];
+    loc0_2: [0; 2];
+  }
+
+  inits (7) {
+    (loc0_1 + loc0_0) == (N - F);
+    loc1_0 == 0;
+    loc3_3 == 0;
+    loc2_2 == 0;
+    loc1_2 == 0;
+    loc0_2 == 0;
+    nsnt == 0;
+  }
+
+  rules (15) {
+  0: loc0_2 -> loc1_2
+      when ((nsnt + F) >= 1)
+      do { nsnt' == nsnt };
+  1: loc0_2 -> loc2_2
+      when ((nsnt + F) >= (T + 1))
+      do { nsnt' == nsnt };
+  2: loc0_2 -> loc3_3
+      when ((nsnt + F) >= (N - T))
+      do { nsnt' == nsnt };
+  3: loc1_2 -> loc2_2
+      when ((nsnt + F) >= (T + 1))
+      do { nsnt' == nsnt };
+  4: loc1_2 -> loc3_3
+      when ((nsnt + F) >= (N - T))
+      do { nsnt' == nsnt };
+  5: loc2_2 -> loc3_3
+      when ((nsnt + F) >= (N - T))
+      do { nsnt' == nsnt };
+  6: loc0_1 -> loc0_2
+      when (((nsnt + F) >= 1  ||  (nsnt + F) == 0))
+      do { nsnt' == (nsnt + 1) };
+  7: loc0_1 -> loc1_2
+      when ((nsnt + F) >= 1)
+      do { nsnt' == (nsnt + 1) };
+  8: loc0_1 -> loc2_2
+      when ((nsnt + F) >= (T + 1))
+      do { nsnt' == (nsnt + 1) };
+  9: loc0_1 -> loc3_3
+      when ((nsnt + F) >= (N - T))
+      do { nsnt' == (nsnt + 1) };
+  10: loc0_0 -> loc2_2
+      when ((nsnt + F) >= (T + 1))
+      do { nsnt' == (nsnt + 1) };
+  11: loc0_0 -> loc3_3
+      when ((nsnt + F) >= (N - T))
+      do { nsnt' == (nsnt + 1) };
+  12: loc0_0 -> loc1_0
+      when ((nsnt + F) >= 1)
+      do { nsnt' == nsnt };
+  13: loc1_0 -> loc2_2
+      when ((nsnt + F) >= (T + 1))
+      do { nsnt' == (nsnt + 1) };
+  14: loc1_0 -> loc3_3
+      when ((nsnt + F) >= (N - T))
+      do { nsnt' == (nsnt + 1) };
+  }
+} /* Proc */
