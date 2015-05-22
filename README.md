@@ -17,8 +17,9 @@ symbolic expressions like ```assume(...)``` that cannot be directly translated
 into normal [Promela](http://spinroot.com/spin/Man/promela.html).  We used the
 benchmarks to evaluate the techniques presented at
 [SPIN'13](http://forsyte.at/wp-content/uploads/spin13.pdf),
-[FMCAD'13](http://www.cs.utexas.edu/users/hunt/FMCAD/FMCAD13/papers/10-Model-Checking-Fault-Tolerant-Distributed-Algo.pdf), and
-[CONCUR'14](http://forsyte.at/wp-content/uploads/concur14-reachability.pdf).
+[FMCAD'13](http://www.cs.utexas.edu/users/hunt/FMCAD/FMCAD13/papers/10-Model-Checking-Fault-Tolerant-Distributed-Algo.pdf),
+[CONCUR'14](http://forsyte.at/wp-content/uploads/concur14-reachability.pdf),
+and [CAV'15](http://forsyte.at/download/konnov-cav15.pdf).
 
 Feel free to use the benchmarks, as long as you cite us :-)
 
