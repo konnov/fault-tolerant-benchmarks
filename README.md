@@ -10,6 +10,9 @@ checked the benchmarks with [Spin](http://spinroot.com):
     Towards Modeling and Model Checking Fault-Tolerant Distributed Algorithms.
     SPIN, volume 7976 of LNCS, pages 209-226, 2013.
 
+A more detailed exposition can be found in the [SFM'14
+tutorial](http://forsyte.at/download/GKSVW14.pdf).
+
 After SPIN'13 we collected new benchmarks and extended them for parameterized
 model checking with [NuSMV](http://nusmv.fbk.eu/) and
 [FAST](http://www.lsv.ens-cachan.fr/Software/fast/). The benchmarks are using
@@ -19,9 +22,10 @@ benchmarks to evaluate the techniques presented at
 [SPIN'13](http://forsyte.at/wp-content/uploads/spin13.pdf),
 [FMCAD'13](http://www.cs.utexas.edu/users/hunt/FMCAD/FMCAD13/papers/10-Model-Checking-Fault-Tolerant-Distributed-Algo.pdf),
 [CONCUR'14](http://forsyte.at/wp-content/uploads/concur14-reachability.pdf),
-and [CAV'15](http://forsyte.at/download/konnov-cav15.pdf).
+[CAV'15](http://forsyte.at/download/konnov-cav15.pdf),
+and [POPL'17](http://forsyte.at/wp-content/uploads/popl17main-main116-p-9d29769-29971-final.pdf).
 
-Feel free to use the benchmarks, as long as you cite us :-)
+Feel free to use the benchmarks, as long as you are citing us :-)
 
 You can generate standard (non-parameterized) Promela code using our
 tool [ByMC](http://forsyte.tuwien.ac.at/software/bymc)
