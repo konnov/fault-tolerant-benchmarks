@@ -1,8 +1,8 @@
 Benchmarks 2017
 =========================
 
-Here you can find the benchmark set for POPL'17, which are an extended version
-of the benchmarks from [CAV'15](../cav15). Several benchmarks were fixed, as
+Here you can find the benchmark set for POPL'17 and FMSD'17, which are an extended
+version of the benchmarks from [CAV'15](../cav15). Several benchmarks were fixed, as
 the CAV'15 benchmarks had a few simplifications for safety that broke liveness.
 The benchmarks are written in parametric Promela. The modeling decisions are
 illustrated in our [Spin'13
