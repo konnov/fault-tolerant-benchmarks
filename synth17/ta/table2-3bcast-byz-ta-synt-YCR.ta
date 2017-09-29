@@ -1,0 +1,115 @@
+/* a template for the ST reliable broadcast */
+
+skel Proc {
+  /* the control locations are as follows:
+    0 is the initial state with value 0,
+    1 is the initial state with value 1,
+    2 is the sent state,
+    3 is the accepting state
+   */
+  local pc;
+  /* the number of messages sent by the correct processes */
+  shared nsnt;
+  parameters N, T, F;
+  unknowns a1, b1, c1, a2, b2, c2; /* the constants to be found by synthesis */
+
+  define THRESH1 == a1 * N + b1 * T + c1;
+  define THRESH2 == a2 * N + b2 * T + c2;
+
+  assumptions (0) {
+    N > 3 * T;
+
+    T >= F;
+    T >= 1;
+    /* We have to constrain the free coefficient from above. Otherwise SMT enumerates all integers. */
+    0 <= a1; a1 <= 1;
+    0 <= a2; a2 <= 1;
+    -4 <= b1; b1 <= 4;
+    -4 <= b2; b2 <= 4;
+    -8 <= c1; c1 <= 8;
+    -8 <= c2; c2 <= 8;
+  }
+
+
+
+  locations (0) {
+    loc0: [0];
+    loc1: [1];
+    locSE: [2];
+    locAC: [3];
+  }
+
+  inits (0) {
+    (loc0 + loc1) == N - F;
+    locSE == 0;
+    locAC == 0;
+    nsnt == 0;
+  }
+
+  rules (8) {
+  /* send a message when having value 1 */
+  0: loc1 -> locSE
+      when (true)
+      do { nsnt' == nsnt + 1; };
+  /* accept directly */
+  1: loc0 -> locAC
+      when (nsnt >= THRESH2 - F)
+      do { nsnt' == nsnt + 1; };
+  2: loc1 -> locAC
+      when (nsnt >= THRESH2 - F)
+      do { nsnt' == nsnt + 1; };
+  /* send a message */
+  3: loc0 -> locSE
+      when (nsnt >= THRESH1 - F)
+      do { nsnt' == nsnt + 1; };
+  /* accept */
+  4: locSE -> locAC
+      when (nsnt >= THRESH2 - F)
+      do { nsnt' == nsnt; };
+
+  /* self-loops in all the locations but loc1, from which processes must progress */
+  5: loc0 -> loc0
+      when (true)
+      do { nsnt' == nsnt; };
+  6: locSE -> locSE
+      when (true)
+      do { nsnt' == nsnt; };
+  7: locAC -> locAC
+      when (true)
+      do { nsnt' == nsnt; };
+  }
+
+  specifications (0) {
+    sanity:
+        (0 <= THRESH1 && THRESH1 <= N && 0 <= THRESH2 && THRESH2 <= N);
+
+    /* safety */
+   
+    /* we check only Y, C, R here */
+    /*
+    unforg: (loc1 == 0) -> [](locAC == 0);
+     */
+   
+    corr: <>[]((nsnt < THRESH1 || loc0 == 0)
+                && (nsnt < THRESH2 || loc0 == 0)
+                && ((nsnt < THRESH2) || locSE == 0)
+                && (loc1 == 0))
+        -> ((loc0 == 0) -> <>(locAC != 0));
+
+    relay: <>[]((nsnt < THRESH1 || loc0 == 0)
+                && (nsnt < THRESH2 || loc0 == 0)
+                && ((nsnt < THRESH2) || locSE == 0)
+                && (loc1 == 0))
+        -> []((locAC != 0) -> <>((loc0 == 0) && (loc1 == 0) && (locSE == 0)));
+
+    /* the new specs invented by Josef */
+    /*
+    X: (loc1 <= 2) -> [](locAC == 0);
+    */
+
+    Y: (loc1 <= T) -> [](locAC == 0);
+
+  }
+} /* Proc */
+
+
