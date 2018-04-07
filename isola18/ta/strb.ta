@@ -69,9 +69,6 @@ skel Proc {
   }
 
   specifications (0) {
-    sanity:
-        (0 <= THRESH1 && THRESH1 <= N && 0 <= THRESH2 && THRESH2 <= N);
-
     /* safety */
     unforg: (loc1 == 0) -> [](locAC == 0);
     
