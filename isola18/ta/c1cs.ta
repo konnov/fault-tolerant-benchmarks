@@ -1,0 +1,253 @@
+/*
+ * A threshold automaton for consensus in one communication step (crash faults).
+ *
+ * Note that the crashes are not clean, that is, a correct process may receive
+ * a message from a crashed process, while another correct process never receives
+ * that message from the crashed process.
+ *
+ * Here we consider only the algorithm itself, without looking
+ * at the underlying consensus.
+ *
+ * F. Brasileiro, F. Greve, A. Mostefaoui, M. Raynal.
+ * Consensus in One Communication Step. PaCT 2001, pp. 42-50.
+ *
+ * Igor Konnov, Josef Widder, 2018
+ *
+ * This file is a subject to the license that is bundled
+ * together with this package and can be found in the file LICENSE.
+ */
+
+skel Proc {
+  /* the control locations are as follows:
+    the initial state with value 0 (0),
+    the initial state with value 1 (1),
+    sent vote 0 (2), sent vote 1 (3),
+    decided on 0 (4), decided on 1 (5),
+    underlying consensus with value 0 (6),
+    underlying consensus with value 1 (7),
+    crashed (8)
+   */
+  local pc;
+  shared nsnt0, nsnt1; /* sent 0 (resp. 1) by the processes */
+  shared nsnt0CF  /* sent 0 by the correct or crashed processes */;
+  shared nsnt1CF  /* sent 1 by the correct or crashed processes */;
+  shared nsnt01   /* sent 0 or 1 by the correct processes */;
+  shared nsnt01CF /* sent 0 or 1 by the correct or crashed processes */;
+  shared nfaulty; /* the number of crashed processes */
+  parameters N, T, F;
+
+  define THRESH1 == N - T;
+  define THRESH2 == N - 2 * T;
+
+  assumptions (1) {
+    N > 3 * T;
+    T >= F;
+    T >= 1;
+  }
+
+  locations (9) {
+    loc0: [0]; loc1: [1]; locS0: [2]; locS1: [3];
+    locD0: [4]; locD1: [5]; locU0: [6]; locU1: [7]; locCR: [8];
+  }
+
+  inits (8) {
+    (loc0 + loc1) == N;
+    locS0 == 0; locS1 == 0; locD0 == 0; locD1 == 0;
+    locU0 == 0; locU1 == 0; locCR == 0;
+    nsnt0 == 0; nsnt1 == 0; nsnt01 == 0;
+    nsnt0CF == 0; nsnt1CF == 0; nsnt01CF == 0;
+    nfaulty == 0;
+  }
+
+  rules (0) {
+  /* send message 0 when initialized with value 0 */
+  0: loc0 -> locS0
+      when (true)
+      do { nsnt0CF' == nsnt0CF + 1; nsnt1CF' == nsnt1CF;
+           nsnt0' == nsnt0 + 1; nsnt1' == nsnt1;
+           nsnt01CF' == nsnt01CF + 1; nsnt01' == nsnt01 + 1;
+           nfaulty' == nfaulty;
+         };
+  1: loc0 -> locCR /* as before but crash */
+      when (nfaulty < F)
+      do { nsnt0CF' == nsnt0CF + 1; nsnt1CF' == nsnt1CF;
+           nsnt0' == nsnt0; nsnt1' == nsnt1;
+           nsnt01CF' == nsnt01CF + 1; nsnt01' == nsnt01;
+           nfaulty' == nfaulty + 1;
+         };
+  /* send message 1 when initialized with value 1 */
+  2: loc1 -> locS1
+      when (true)
+      do { nsnt0CF' == nsnt0CF; nsnt1CF' == nsnt1CF + 1;
+           nsnt0' == nsnt0; nsnt1' == nsnt1 + 1;
+           nsnt01CF' == nsnt01CF + 1; nsnt01' == nsnt01 + 1;
+           nfaulty' == nfaulty;
+         };
+  3: loc1 -> locCR
+      when (nfaulty < F)
+      do { nsnt0CF' == nsnt0CF; nsnt1CF' == nsnt1CF + 1;
+           nsnt0' == nsnt0; nsnt1' == nsnt1 + 1;
+           nsnt01CF' == nsnt01CF + 1; nsnt01' == nsnt01 + 1;
+           nfaulty' == nfaulty + 1;
+         };
+
+  /* decide immediately */
+  4: locS0 -> locD0 /* decide on value 0 */
+      when (nsnt01CF >= THRESH1 && nsnt1CF < 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  5: locS0 -> locD0 /* decide on value 0 */
+      when (nsnt01CF >= THRESH1 && nsnt1 < 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  6: locS1 -> locD0 /* decide on value 0 */
+      when (nsnt01CF >= THRESH1 && nsnt1CF < 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  7: locS1 -> locD0 /* decide on value 0 */
+      when (nsnt01CF >= THRESH1 && nsnt1 < 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  8: locS0 -> locD1 /* decide on value 1 */
+      when (nsnt01CF >= THRESH1 && nsnt0CF < 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  9: locS0 -> locD1 /* decide on value 1 */
+      when (nsnt01CF >= THRESH1 && nsnt0 < 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  10: locS1 -> locD1 /* decide on value 1 */
+      when (nsnt01CF >= THRESH1 && nsnt0CF < 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  11: locS1 -> locD1 /* decide on value 1 */
+      when (nsnt01CF >= THRESH1 && nsnt0 < 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+
+  /* fall back to the underlying consensus with a vote */
+  12: locS0 -> locU0 /* call underlying consensus with 0 */
+      when (nsnt01CF >= THRESH1 && nsnt0CF >= THRESH2 && nsnt1CF >= 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  13: locS1 -> locU0 /* call underlying consensus with 0 */
+      when (nsnt01CF >= THRESH1 && nsnt0CF >= THRESH2 && nsnt1CF >= 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  14: locS0 -> locU0 /* call underlying consensus with 1 */
+      when (nsnt01CF >= THRESH1 && nsnt1CF >= THRESH2 && nsnt0CF >= 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  15: locS1 -> locU0 /* call underlying consensus with 1 */
+      when (nsnt01CF >= THRESH1 && nsnt1CF >= THRESH2 && nsnt0CF >= 1)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+
+  /* the input value falls through to underlying consensus */
+  16: locS0 -> locU0 /* underlying consensus 0 */
+      when (nsnt01CF >= THRESH1
+                && nsnt0CF < THRESH2
+                && nsnt1CF < THRESH2)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  17: locS0 -> locU0 /* underlying consensus 0 */
+      when (nsnt01CF >= THRESH1
+                && nsnt0 < THRESH2
+                && nsnt1 < THRESH2)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  18: locS1 -> locU1 /* underlying consensus 1 */
+      when (nsnt01CF >= THRESH1
+                && nsnt0CF < THRESH2
+                && nsnt1CF < THRESH2)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+  19: locS1 -> locU1 /* underlying consensus 1 */
+      when (nsnt01CF >= THRESH1
+                && nsnt0 < THRESH2
+                && nsnt1 < THRESH2)
+      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
+
+  /* crashing from any state */
+  20: loc0 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  21: loc1 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  22: locS0 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  23: locS1 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  24: locD0 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  25: locD1 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  26: locU0 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  27: locU1 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+
+  /* self loops */
+  28: loc0 -> loc0
+      when (true)
+      do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  29: loc1 -> loc1
+      when (true)
+      do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  30: locS0 -> locS0
+      when (true)
+      do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  31: locS1 -> locS1
+      when (true)
+      do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  32: locD0 -> locD0
+      when (true)
+      do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  33: locD1 -> locD1
+      when (true)
+      do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  34: locU0 -> locU0
+      when (true)
+      do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  35: locU1 -> locU1
+      when (true)
+      do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
+  }
+
+  specifications (0) {
+    /* one-step safety */
+    one_step0:
+        (loc1 == 0 -> [](locD1 == 0 && locU0 == 0 && locU1 == 0));
+
+    one_step1:
+        (loc0 == 0 -> [](locD0 == 0 && locU0 == 0 && locU1 == 0));
+
+    /* fast convergence (we take only the messages from the correct processes) */
+    fast0:
+        (<>[]((nsnt01 < THRESH1 || locS0 == 0)
+                && (nsnt01 < THRESH1 || locS1 == 0)
+                    && loc0 == 0 && loc1 == 0))
+        ->
+        (loc1 == 0
+            -> <>(loc0 == 0 && loc1 == 0 && locS0 == 0 && locS1 == 0
+                    && locD1 == 0 && locU0 == 0 && locU1 == 0));
+    fast1:
+        (<>[]((nsnt01 < THRESH1 || locS0 == 0)
+                && (nsnt01 < THRESH1 || locS1 == 0)
+                    && loc0 == 0 && loc1 == 0))
+        ->
+        (loc0 == 0
+            -> <>(loc0 == 0 && loc1 == 0 && locS0 == 0 && locS1 == 0
+                    && locD0 == 0 && locU0 == 0 && locU1 == 0));
+
+    /* convergence (either fast or slow) */
+    termination:
+        (<>[]((nsnt01 < THRESH1 || locS0 == 0)
+                && (nsnt01 < THRESH1 || locS1 == 0)
+                    && loc0 == 0 && loc1 == 0))
+        ->
+        <>(loc0 == 0 && loc1 == 0 && locS0 == 0 && locS1 == 0);
+  }
+} /* Proc */
+
+
