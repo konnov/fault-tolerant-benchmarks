@@ -1,0 +1,114 @@
+/* a threshold automaton for the reliable broadcast:
+   Byzantine faults and non-clean crashes */
+
+threshAuto proc {
+  /* the control locations are as follows:
+    0 is the initial state with value 0,
+    1 is the initial state with value 1,
+    2 is the sent state,
+    3 is the accepting state,
+    4 is the crashed state,
+   */
+  local pc;
+  /* the number of messages sent by the correct processes and (possibly) by the crashed processes */
+  shared nsnt, nsntCandF, ncrashed;
+  parameters N, Tb, Tc, Fb, Fc;
+
+  define THRESH1 == Tb + 1;
+  define THRESH2 == 2 * Tb + Tc + 1;
+
+  assumptions (0) {
+    N > 3 * Tb + 2 * Tc;
+    Tb >= Fb;
+    Tb >= 0;
+    Tc >= Fc;
+    Tc >= 0;
+  }
+
+  locations (0) {
+    loc0: [0];
+    loc1: [1];
+    locSE: [2];
+    locAC: [3];
+    locCR: [4];
+  }
+
+  inits (0) {
+    (loc0 + loc1) == N - Fb;
+    locSE == 0;
+    locAC == 0;
+    locCR == 0;
+    nsnt == 0;
+    nsntCandF == 0;
+    ncrashed == 0;
+  }
+
+  rules (0) {
+  /* crashing without or with sending a message */
+  0: loc0 -> locCR
+      when (ncrashed < Fc)
+      do { unchanged(nsnt, nsntCandF); ncrashed' == ncrashed + 1; };
+  1: loc1 -> locCR
+      when (ncrashed < Fc)
+      do { unchanged(nsnt, nsntCandF); ncrashed' == ncrashed + 1; };
+  2: loc1 -> locCR
+      when (ncrashed < Fc)
+      do { nsnt' == nsnt; nsntCandF' == nsntCandF + 1; ncrashed' == ncrashed + 1; };
+  /* crashing when in the sent or accepting state */
+  3: locSE -> locCR
+      when (ncrashed < Fc)
+      do { unchanged(nsnt, nsntCandF); ncrashed' == ncrashed + 1; };
+  4: locAC -> locCR
+      when (ncrashed < Fc)
+      do { unchanged(nsnt, nsntCandF); ncrashed' == ncrashed + 1; };
+  /* send a message when having value 1 */
+  5: loc1 -> locSE
+      when (true)
+      do { nsnt' == nsnt + 1; nsntCandF' == nsntCandF + 1; ncrashed' == ncrashed; };
+  /* accept directly */
+  6: loc0 -> locAC
+      when (nsntCandF >= THRESH2 - Fb)
+      do { nsnt' == nsnt + 1; nsntCandF' == nsntCandF + 1; ncrashed' == ncrashed; };
+  7: loc1 -> locAC
+      when (nsntCandF >= THRESH2 - Fb)
+      do { nsnt' == nsnt + 1; nsntCandF' == nsntCandF + 1; ncrashed' == ncrashed; };
+  /* send a message */
+  8: loc0 -> locSE
+      when (nsntCandF >= THRESH1 - Fb)
+      do { nsnt' == nsnt + 1; nsntCandF' == nsntCandF + 1; ncrashed' == ncrashed; };
+  /* accept */
+  9: locSE -> locAC
+      when (nsntCandF >= THRESH2 - Fb)
+      do { unchanged(nsnt, nsntCandF, ncrashed); };
+
+  /* self-loops in all the locations but loc1, from which processes must progress */
+  10: loc0 -> loc0
+      when (true)
+      do { unchanged(nsnt, nsntCandF, ncrashed); };
+  11: locSE -> locSE
+      when (true)
+      do { unchanged(nsnt, nsntCandF, ncrashed); };
+  12: locAC -> locAC
+      when (true)
+      do { unchanged(nsnt, nsntCandF, ncrashed); };
+  }
+
+  specifications (0) {
+    /* safety */
+    unforg: (loc1 == 0) -> [](locAC == 0);
+
+    corr: <>[]((nsnt < THRESH1 || loc0 == 0)
+                && (nsnt < THRESH2 || loc0 == 0)
+                && ((nsnt < THRESH2) || locSE == 0)
+                && (loc1 == 0))
+        -> ((loc0 == 0) -> <>(locAC != 0));
+
+    relay: <>[]((nsnt < THRESH1 || loc0 == 0)
+                && (nsnt < THRESH2 || loc0 == 0)
+                && ((nsnt < THRESH2) || locSE == 0)
+                && (loc1 == 0))
+        -> []((locAC != 0) -> <>(loc0 == 0 && loc1 == 0 && locSE == 0));
+  }
+} /* Proc */
+
+
