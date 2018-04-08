@@ -1,0 +1,98 @@
+/* a threshold automata for Asynchronous Byzantine Agreement */
+
+skel Proc {
+  /* the control locations are as follows:
+    0 is the initial state with value 0,
+    1 is the initial state with value 1,
+    2 is echo sent,
+    3 is ready sent,
+    4 is the accepting state
+   */
+  local pc;
+  /* the number of ECHO and READY messages sent by the correct processes */
+  shared nsntEC, nsntRD;
+  parameters N, T, F;
+
+  define THRESH1 == N + T + 1; /* ceiling((N + T) / 2) */
+  define THRESH2 == T + 1;
+  define THRESH3 == 2 * T + 1;
+
+  assumptions (0) {
+    N > 3 * T;
+    T >= F;
+    T >= 1;
+  }
+
+  locations (0) {
+    loc0: [0]; loc1: [1]; locEC: [2]; locRD: [3]; locAC: [4];
+  }
+
+  inits (0) {
+    (loc0 + loc1) == N - F;
+    locEC == 0; locRD == 0; locAC == 0;
+    nsntEC == 0; nsntRD == 0;
+  }
+
+  rules (10) {
+  /* send a message when having value 1 */
+  0: loc1 -> locEC
+      when (true)
+      do { nsntEC' == nsntEC + 1; nsntRD' == nsntRD; };
+  /* phase 1: send ECHO */
+  1: loc0 -> locEC
+      when (2 * nsntEC >= THRESH1 - 2 * F) /* nsntEC >= ceiling((N + T) / 2) */
+      do { nsntEC' == nsntEC + 1; nsntRD' == nsntRD; };
+  2: loc0 -> locEC
+      when (nsntRD >= THRESH2 - F)
+      do { nsntEC' == nsntEC + 1; nsntRD' == nsntRD; };
+  /* phase 2: send READY */
+  3: locEC -> locRD
+      when (2 * nsntEC >= THRESH1 - 2 * F) /* nsntEC >= ceiling((N + T) / 2) */
+      do { nsntEC' == nsntEC; nsntRD' == nsntRD + 1; };
+  4: locEC -> locRD
+      when (nsntRD >= THRESH2 - F)
+      do { nsntEC' == nsntEC; nsntRD' == nsntRD + 1; };
+  /* accept */
+  5: locRD -> locAC
+      when (2 * nsntRD >= THRESH3)
+      do { unchanged(nsntEC, nsntRD); };
+  /* self-loops */
+  6: loc0 -> loc0
+      when (2 * nsntEC < THRESH1 && nsntRD < THRESH2)
+      do { unchanged(nsntEC, nsntRD); };
+  7: locEC -> locEC
+      when (2 * nsntEC < THRESH1 && nsntRD < THRESH2)
+      do { unchanged(nsntEC, nsntRD); };
+  8: locRD -> locRD
+      when (nsntRD < THRESH3)
+      do { unchanged(nsntEC, nsntRD); };
+  9: locAC -> locAC
+      when (true)
+      do { unchanged(nsntEC, nsntRD); };
+  }
+
+  specifications (0) {
+    /* safety */
+    unforg: (loc1 == 0) -> [](locAC == 0);
+    
+    /* liveness */
+    corr: <>[](((2 * nsntEC < THRESH1) || (loc0 == 0))
+                && ((nsntRD < THRESH2) || (loc0 == 0))
+                && ((2 * nsntEC < THRESH1) || (locEC == 0))
+                && ((nsntRD < THRESH2) || (locEC == 0))
+                && ((nsntRD < THRESH3) || (locRD == 0))
+                && (loc1 == 0))
+        -> ((loc0 == 0) -> <>(locAC != 0));
+
+    relay: <>[]((2 * nsntEC < THRESH1 || loc0 == 0)
+                && (nsntRD < THRESH2 || loc0 == 0)
+                && (2 * nsntEC < THRESH1 || locEC == 0)
+                && (nsntRD < THRESH2 || locEC == 0)
+                && (nsntRD < THRESH3 || locRD == 0)
+                && (loc1 == 0))
+        -> []((locAC != 0)
+            -> <>(loc0 == 0 && loc1 == 0 && locEC == 0 && locRD == 0));
+  }
+} /* Proc */
+
+
