@@ -1,0 +1,133 @@
+/* a threshold automata for condition-based consensus
+ *
+ * Igor Konnov, Josef Widder, 2018
+ *
+ * The encoding of the algorithm in Fig. 1 of:
+ *
+ * Mostefaoui, Mourgaya, Parvedy, Raynal. Evaluating the Condition-based
+ * Approach to Solve Consensus. DSN, 2003, pp. 541--550.
+ *
+ * This file is a subject to the license that is bundled
+ * together with this package and can be found in the file LICENSE.
+ */
+
+skel Proc {
+  /* the control locations are as follows:
+    the initial state with value 0 (0),
+    the initial state with value 1 (1),
+    in phase 0 (2),
+    in phase 1 (3),
+    accepted 0 (4),
+    accepted 1 (5),
+    crashed (6)
+   */
+  local pc;
+  /* the number of messages sent by the correct processes */
+  shared nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01;
+  shared nfaulty; /* the number of faulty processes */
+  parameters N, T, F;
+
+  assumptions (0) {
+    N > 2 * T; T >= F; T >= 0; F >= 0;
+  }
+
+  locations (0) {
+    loc0: [0]; loc1: [1]; locP0: [2]; locP1: [3];
+    locAC0: [4]; locAC1: [5]; locCR: [6];
+  }
+
+  inits (0) {
+    (loc0 + loc1) == N;
+    locP0 == 0; locP1 == 0;
+    locAC0 == 0; locAC1 == 0;
+    locCR == 0;
+    nsnt00 == 0; nsnt01 == 0; nsnt10 == 0; nsnt11 == 0;
+    nsnt00plus01 == 0; nfaulty == 0;
+  }
+
+  rules (0) {
+  /* send a message when having value 0 */
+  0: loc0 -> locP0
+      when (true)
+      do { nsnt00' == nsnt00 + 1; nsnt00plus01' == nsnt00plus01 + 1;
+           unchanged(nsnt01, nsnt10, nsnt11, nfaulty); };
+  /* send a message when having value 1 */
+  1: loc1 -> locP0
+      when (true)
+      do { nsnt01' == nsnt01 + 1; nsnt00plus01' == nsnt00plus01 + 1;
+           unchanged(nsnt00, nsnt10, nsnt11, nfaulty); };
+
+  /* go to phase 1, we express the most frequently met value
+     as >= floor((N - T + 1) / 2) */
+  2: locP0 -> locP1
+      when (nsnt00plus01 >= N - T && 2 * nsnt00 >= N - T + 1)
+      do { nsnt10' == nsnt10 + 1;
+           unchanged(nsnt00, nsnt01, nsnt11, nsnt00plus01, nfaulty); };
+  3: locP0 -> locP1
+      when (nsnt00plus01 >= N - T && 2 * nsnt01 >= N - T + 1)
+      do { nsnt11' == nsnt11 + 1;
+           unchanged(nsnt00, nsnt01, nsnt10, nsnt00plus01, nfaulty); };
+
+  /* accept 0 or 1, depending on the majority */
+  4: locP1 -> locAC0
+      when (2 * nsnt10 >= N + 1)
+      do { unchanged(nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01, nfaulty); };
+  5: locP1 -> locAC1
+      when (2 * nsnt11 >= N + 1)
+      do { unchanged(nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01, nfaulty); };
+
+  /* crashing */
+  6: locP0 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01); };
+  7: locP1 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01); };
+  8: locAC0 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01); };
+  9: locAC1 -> locCR
+      when (nfaulty < F)
+      do {  nfaulty' == nfaulty + 1;
+            unchanged(nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01); };
+
+  /* self-loops in all the locations but loc0 and loc1,
+     from which processes must progress */
+  10: locP0 -> locP0
+      when (true)
+      do { unchanged(nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01, nfaulty); };
+  11: locP1 -> locP1
+      when (true)
+      do { unchanged(nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01, nfaulty); };
+  12: locAC0 -> locAC0
+      when (true)
+      do { unchanged(nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01, nfaulty); };
+  13: locAC1 -> locAC1
+      when (true)
+      do { unchanged(nsnt00, nsnt01, nsnt10, nsnt11, nsnt00plus01, nfaulty); };
+
+  }
+
+  specifications (0) {
+    /* safety */
+    validity0: (loc0 == 0) -> [](locAC0 == 0);
+    validity1: (loc1 == 0) -> [](locAC1 == 0);
+    agreement: [](locAC0 == 0 || locAC1 == 0);
+    
+    termination:
+        ((loc0 > loc1 + T || loc1 > loc0 + T)
+            &&
+        <>[](loc0 == 0 && loc1 == 0
+                && (nsnt00plus01 < N - T || locP0 == 0)
+                && (2 * nsnt10 < N + 1 || locP1 == 0)
+                && (2 * nsnt11 < N + 1 || locP1 == 0))
+        ) ->
+        <>(loc0 == 0 && loc1 == 0 && locP0 == 0 && locP1 == 0);
+
+  }
+} /* Proc */
+
+
