@@ -1,0 +1,142 @@
+/*
+ * A threshold automata for asynchronous non-blocking atomic commitment
+ * with failure detectors, after the "generic NBAC protocol"
+ * from Raynal 1997 (A Case study of Agreement Problems..."
+ *
+ * Igor Konnov, Josef Widder, 2018
+ *
+ * This file is a subject to the license that is bundled
+ * together with this package and can be found in the file LICENSE.
+ */
+
+skel Proc {
+  /* the control locations are as follows:
+    transaction 'no' (0),
+    transaction 'yes' (1),
+    sent and no failure detected (2),
+    sent and failure detected (3),
+    commit (4), abort (5), crashed (6)
+   */
+  local pc;
+  /* the number of messages sent by the correct processes and probably by crashed */
+  shared nsntNoCF, nsntYesCF;
+  parameters N;
+
+  assumptions (0) {
+    N > 1;
+  }
+
+  locations (0) {
+    locNO: [0]; locYES: [1];
+    locSE: [2]; locSEFD: [3];
+    locCMT: [4]; locABR: [5]; locCR: [6];
+  }
+
+  inits (0) {
+    (locNO + locYES) == N;
+    locSE == 0; locSEFD == 0; locCMT == 0; locABR == 0; locCR == 0;
+    nsntNoCF == 0; nsntYesCF == 0;
+  }
+
+  rules (0) {
+  /* the first round */
+  0: locNO -> locSE
+      when (true)
+      do { nsntNoCF' == nsntNoCF + 1; unchanged(nsntYesCF); };
+  1: locYES -> locSE
+      when (true)
+      do { nsntYesCF' == nsntYesCF + 1; unchanged(nsntNoCF); };
+
+  /* detecting a failure */
+  2: locSE -> locSEFD
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+
+  /* the second round */
+  3: locSE -> locABR
+      when (nsntNoCF >= 1)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  4: locSEFD -> locABR
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  5: locSE -> locCMT
+      when (nsntNoCF < 1 && nsntYesCF >= N)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+
+  /* crashing */
+  6: locNO -> locCR
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  7: locYES -> locCR
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  8: locSE -> locCR
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  9: locSEFD -> locCR
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  10: locCMT -> locCR
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  11: locABR -> locCR
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+
+  /* self-loops in all the initial ones and crashed,
+     from which processes must progress */
+  12: locSE -> locSE
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  13: locSEFD -> locSEFD
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  14: locCMT -> locCMT
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  15: locABR -> locABR
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  }
+
+  specifications (0) {
+    /* safety */
+    validity:
+        locNO == 0 || [](locCMT == 0);
+
+    /* agreement needs a consensus algorithm, which we don't have here */
+    /*agreement: [](locCMT == 0 || locABR == 0);*/
+    
+    nontriv:
+        (<>[](locNO == 0 && locYES == 0 && locSEFD == 0
+                && (nsntNoCF < 1 || locSE == 0)
+                && (nsntYesCF < N || nsntNoCF >= 1 || locSE == 0))
+            &&
+        [](locSEFD == 0 && locCR == 0) /* nobody gets suspicious, nor crashes */
+            &&
+        locNO == 0) /* everybody starts with yes */
+            ->
+        <>(locNO == 0 && locYES == 0 && locSE == 0
+                && locSEFD == 0 && locABR == 0 && locCR == 0); /* all commit */
+ 
+    termination1:
+        (<>[](locNO == 0 && locYES == 0 && locSEFD == 0
+                && (nsntNoCF < 1 || locSE == 0)
+                && (nsntYesCF < N || nsntNoCF >= 1 || locSE == 0))
+            &&
+        [](locCR == 0)) /* nobody crashes */
+            ->
+        <>(locNO == 0 && locYES == 0 && locSE == 0 && locSEFD == 0); /* all decide */
+    
+    termination2:
+        (<>[](locNO == 0 && locYES == 0 && locSEFD == 0
+                && (nsntNoCF < 1 || locSE == 0)
+                && (nsntYesCF < N || nsntNoCF >= 1 || locSE == 0))
+            &&
+        <>[](locSE == 0)) /* all get suspicious */
+            ->
+        <>(locNO == 0 && locYES == 0 && locSE == 0 && locSEFD == 0); /* all decide */
+  }
+} /* Proc */
+
+
