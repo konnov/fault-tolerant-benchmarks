@@ -86,35 +86,23 @@ skel Proc {
   3: loc1 -> locCR
       when (nfaulty < F)
       do { nsnt0CF' == nsnt0CF; nsnt1CF' == nsnt1CF + 1;
-           nsnt0' == nsnt0; nsnt1' == nsnt1 + 1;
-           nsnt01CF' == nsnt01CF + 1; nsnt01' == nsnt01 + 1;
+           nsnt0' == nsnt0; nsnt1' == nsnt1;
+           nsnt01CF' == nsnt01CF + 1; nsnt01' == nsnt01;
            nfaulty' == nfaulty + 1;
          };
 
   /* decide immediately */
   4: locS0 -> locD0 /* decide on value 0 */
-      when (nsnt01CF >= THRESH1 && nsnt1CF < 1)
+      when (nsnt0CF >= THRESH1)
       do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  5: locS0 -> locD0 /* decide on value 0 */
-      when (nsnt01CF >= THRESH1 && nsnt1 < 1)
+  5: locS1 -> locD0 /* decide on value 0 */
+      when (nsnt0CF >= THRESH1)
       do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  6: locS1 -> locD0 /* decide on value 0 */
-      when (nsnt01CF >= THRESH1 && nsnt1CF < 1)
-      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  7: locS1 -> locD0 /* decide on value 0 */
-      when (nsnt01CF >= THRESH1 && nsnt1 < 1)
-      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  8: locS0 -> locD1 /* decide on value 1 */
-      when (nsnt01CF >= THRESH1 && nsnt0CF < 1)
-      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  9: locS0 -> locD1 /* decide on value 1 */
-      when (nsnt01CF >= THRESH1 && nsnt0 < 1)
+  6: locS0 -> locD1 /* decide on value 1 */
+      when (nsnt1CF >= THRESH1)
       do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
   10: locS1 -> locD1 /* decide on value 1 */
-      when (nsnt01CF >= THRESH1 && nsnt0CF < 1)
-      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  11: locS1 -> locD1 /* decide on value 1 */
-      when (nsnt01CF >= THRESH1 && nsnt0 < 1)
+      when (nsnt1CF >= THRESH1)
       do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
 
   /* fall back to the underlying consensus with a vote */
@@ -124,92 +112,82 @@ skel Proc {
   13: locS1 -> locU0 /* call underlying consensus with 0 */
       when (nsnt01CF >= THRESH1 && nsnt0CF >= THRESH2 && nsnt1CF >= 1)
       do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  14: locS0 -> locU0 /* call underlying consensus with 1 */
+  14: locS0 -> locU1 /* call underlying consensus with 1 */
       when (nsnt01CF >= THRESH1 && nsnt1CF >= THRESH2 && nsnt0CF >= 1)
       do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  15: locS1 -> locU0 /* call underlying consensus with 1 */
+  15: locS1 -> locU1 /* call underlying consensus with 1 */
       when (nsnt01CF >= THRESH1 && nsnt1CF >= THRESH2 && nsnt0CF >= 1)
       do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
 
   /* the input value falls through to underlying consensus */
   16: locS0 -> locU0 /* underlying consensus 0 */
       when (nsnt01CF >= THRESH1
-                && nsnt0CF < THRESH2
-                && nsnt1CF < THRESH2)
-      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  17: locS0 -> locU0 /* underlying consensus 0 */
-      when (nsnt01CF >= THRESH1
                 && nsnt0 < THRESH2
                 && nsnt1 < THRESH2)
       do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  18: locS1 -> locU1 /* underlying consensus 1 */
-      when (nsnt01CF >= THRESH1
-                && nsnt0CF < THRESH2
-                && nsnt1CF < THRESH2)
-      do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
-  19: locS1 -> locU1 /* underlying consensus 1 */
+  17: locS1 -> locU1 /* underlying consensus 1 */
       when (nsnt01CF >= THRESH1
                 && nsnt0 < THRESH2
                 && nsnt1 < THRESH2)
       do { unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01, nfaulty); };
 
   /* crashing from any state */
-  20: loc0 -> locCR
+  18: loc0 -> locCR
       when (nfaulty < F)
       do {  nfaulty' == nfaulty + 1;
             unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  21: loc1 -> locCR
+  19: loc1 -> locCR
       when (nfaulty < F)
       do {  nfaulty' == nfaulty + 1;
             unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  22: locS0 -> locCR
+  20: locS0 -> locCR
       when (nfaulty < F)
       do {  nfaulty' == nfaulty + 1;
             unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  23: locS1 -> locCR
+  21: locS1 -> locCR
       when (nfaulty < F)
       do {  nfaulty' == nfaulty + 1;
             unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  24: locD0 -> locCR
+  22: locD0 -> locCR
       when (nfaulty < F)
       do {  nfaulty' == nfaulty + 1;
             unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  25: locD1 -> locCR
+  23: locD1 -> locCR
       when (nfaulty < F)
       do {  nfaulty' == nfaulty + 1;
             unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  26: locU0 -> locCR
+  24: locU0 -> locCR
       when (nfaulty < F)
       do {  nfaulty' == nfaulty + 1;
             unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  27: locU1 -> locCR
+  25: locU1 -> locCR
       when (nfaulty < F)
       do {  nfaulty' == nfaulty + 1;
             unchanged(nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
 
   /* self loops */
-  28: loc0 -> loc0
+  26: loc0 -> loc0
       when (true)
       do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  29: loc1 -> loc1
+  27: loc1 -> loc1
       when (true)
       do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  30: locS0 -> locS0
+  28: locS0 -> locS0
       when (true)
       do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  31: locS1 -> locS1
+  29: locS1 -> locS1
       when (true)
       do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  32: locD0 -> locD0
+  30: locD0 -> locD0
       when (true)
       do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  33: locD1 -> locD1
+  31: locD1 -> locD1
       when (true)
       do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  34: locU0 -> locU0
+  32: locU0 -> locU0
       when (true)
       do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
-  35: locU1 -> locU1
+  33: locU1 -> locU1
       when (true)
       do { unchanged(nfaulty, nsnt0CF, nsnt0, nsnt1CF, nsnt1, nsnt01CF, nsnt01); };
   }
@@ -224,16 +202,16 @@ skel Proc {
 
     /* fast convergence (we take only the messages from the correct processes) */
     fast0:
-        (<>[]((nsnt01 < THRESH1 || locS0 == 0)
-                && (nsnt01 < THRESH1 || locS1 == 0)
+        (<>[]((nsnt01CF < THRESH1 || locS0 == 0)
+                && (nsnt01CF < THRESH1 || locS1 == 0)
                     && loc0 == 0 && loc1 == 0))
         ->
         (loc1 == 0
             -> <>(loc0 == 0 && loc1 == 0 && locS0 == 0 && locS1 == 0
                     && locD1 == 0 && locU0 == 0 && locU1 == 0));
     fast1:
-        (<>[]((nsnt01 < THRESH1 || locS0 == 0)
-                && (nsnt01 < THRESH1 || locS1 == 0)
+        (<>[]((nsnt01CF < THRESH1 || locS0 == 0)
+                && (nsnt01CF < THRESH1 || locS1 == 0)
                     && loc0 == 0 && loc1 == 0))
         ->
         (loc0 == 0
@@ -242,8 +220,8 @@ skel Proc {
 
     /* convergence (either fast or slow) */
     termination:
-        (<>[]((nsnt01 < THRESH1 || locS0 == 0)
-                && (nsnt01 < THRESH1 || locS1 == 0)
+        (<>[]((nsnt01CF < THRESH1 || locS0 == 0)
+                && (nsnt01CF < THRESH1 || locS1 == 0)
                     && loc0 == 0 && loc1 == 0))
         ->
         <>(loc0 == 0 && loc1 == 0 && locS0 == 0 && locS1 == 0);

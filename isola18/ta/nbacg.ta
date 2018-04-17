@@ -80,22 +80,25 @@ skel Proc {
   9: locYESFD -> locCR
       when (true)
       do { unchanged(nsntNoCF, nsntYesCF); };
-  10: locCMT -> locCR
+  10: locSE -> locCR
       when (true)
       do { unchanged(nsntNoCF, nsntYesCF); };
-  11: locABR -> locCR
+  11: locCMT -> locCR
+      when (true)
+      do { unchanged(nsntNoCF, nsntYesCF); };
+  12: locABR -> locCR
       when (true)
       do { unchanged(nsntNoCF, nsntYesCF); };
 
   /* self-loops in all the initial ones and crashed,
      from which processes must progress */
-  12: locSE -> locSE
+  13: locSE -> locSE
       when (true)
       do { unchanged(nsntNoCF, nsntYesCF); };
-  13: locCMT -> locCMT
+  14: locCMT -> locCMT
       when (true)
       do { unchanged(nsntNoCF, nsntYesCF); };
-  14: locABR -> locABR
+  15: locABR -> locABR
       when (true)
       do { unchanged(nsntNoCF, nsntYesCF); };
   }
