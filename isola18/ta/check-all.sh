@@ -166,9 +166,9 @@ for s in unforg corr relay; do
     sched "strb $s ${bug}"
 done
  
-for s in unforg corr relay; do
-    sched "bcrb $s ${bug}"
-done
+#for s in unforg corr relay; do
+#    sched "bcrb $s ${bug}"
+#done
 
 for s in termination1 termination2 validity nontriv; do
     sched "nbacr $s ${bug}"
@@ -180,6 +180,14 @@ done
 
 for s in one_step0 fast0; do
     sched "cf1s $s ${bug}"
+done
+
+# c1cs is checked much faster in the incremental mode
+# (in the incremental mode, an SMT query is checked as soon as
+# a new cut point has been reached.
+inc="\"-O schema.incremental=1\""
+for s in one_step0 fast0 termination; do
+    sched "c1cs $s $inc ${bug}"
 done
 
 # bosco times out in the non-incremental mode, so run it in the incremental mode
@@ -198,14 +206,6 @@ done
 inc="\"-O schema.incremental=1\""
 for s in validity0 agreement termination; do
   sched "cc $s ${bug}"
-done
-
-# c1cs is checked much faster in the incremental mode
-# (in the incremental mode, an SMT query is checked as soon as
-# a new cut point has been reached.
-inc="\"-O schema.incremental=1\""
-for s in one_step0 fast0 termination; do
-    sched "c1cs $s $inc ${bug}"
 done
 
 # statistics
