@@ -121,25 +121,25 @@ EOF
 
 if false; then
     for s in unforg corr relay; do
-        sched "frb $s ${bug}"
+        sched frb $s ${bug}
     done
      
     for s in unforg corr relay; do
-        sched "strb $s ${bug}"
+        sched strb $s ${bug}
     done
 
     for s in termination1 termination2 validity nontriv; do
-        sched "nbacr $s ${bug}"
+        sched nbacr $s ${bug}
     done
 
     for s in agreement abort_validity commit_validity termination; do
-        sched "nbacg $s ${bug}"
+        sched nbacg $s ${bug}
     done
 fi
 
 for c in 1 2 3; do
   for s in one_step0 fast0; do
-    sched "cf1s $s \"-D CASE$c=1\" ${bug}"
+    sched cf1s $s \"-D CASE$c=1\" ${bug}
   done
 done
 
@@ -149,7 +149,7 @@ done
 inc="\"-O schema.incremental=1\""
 for c in 1 2 3; do
       for s in one_step0 fast0 termination; do
-    sched "c1cs $s \"-D CASE$c=1\" $inc ${bug}"
+    sched c1cs $s \"-D CASE$c=1\" $inc ${bug}
   done
 done
 
@@ -159,40 +159,40 @@ done
 # a new cut point has been reached.
 for c in 1 2 3; do
   for s in lemma3_0 lemma4_0 fast0; do
-    sched "bosco $s \"-D CASE$c=1\" $inc ${bug}"
+    sched bosco $s \"-D CASE$c=1\" $inc ${bug}
   done
 done
 
 for s in one_step0 fast0; do
-  sched "bosco $s \"-D CASE3=1 -D WEAKLY_1S=1\" $inc ${bug}"
-  sched "bosco $s \"-D CASE3=1 -D STRONGLY_1S=1\" $inc ${bug}"
+  sched bosco $s \"-D CASE3=1 -D WEAKLY_1S=1\" $inc ${bug}
+  sched bosco $s \"-D CASE3=1 -D STRONGLY_1S=1\" $inc ${bug}
 done
  
 inc="\"-O schema.incremental=0\""
 for c in 1 2; do
   for s in unforg corr agreement; do
-    sched "aba $s \"-D CASE$c=1\" ${bug}"
+    sched aba $s \"-D CASE$c=1\" ${bug}
   done
 done
 
 inc="\"-O schema.incremental=1\""
 for c in 1 2 3 4; do
-  sched "cc validity0 \"-D CASE$c=1\" ${bug}"
+  sched cc validity0 \"-D CASE$c=1\" ${bug}
 done
 
 # Agreement and termination of cond-consensus2 require us
 # to play with the intervals, otherwise the experiments take too long.
 # The option piaDom.thresholds, allows us to override thresholds.
 # Note that this does not sacrifices soundness of the abstractions.
-sched "cc agreement \"-D CASE1=1\" ${bug}"
-sched "cc agreement \"-D CASE2=1\" ${bug}"
-sched "cc agreement \"-D CASE3=1\" ${bug} -O piaDom.thresholds='0,F,MAJ,N-T'"
-sched "cc agreement \"-D CASE4=1\" ${bug}"
+sched cc agreement \"-D CASE1=1\" ${bug}
+sched cc agreement \"-D CASE2=1\" ${bug}
+sched cc agreement \"-D CASE3=1\" ${bug} -O piaDom.thresholds='0,F,MAJ,N-T'
+sched cc agreement \"-D CASE4=1\" ${bug}
 
-sched "cc termination \"-D CASE1=1\" ${bug}"
-sched "cc termination \"-D CASE2=1\" ${bug}"
-sched "cc termination \"-D CASE3=1\" ${bug} -O piaDom.thresholds='0,F,MAJ,N-T'"
-sched "cc termination \"-D CASE4=1\" ${bug} -O piaDom.thresholds='0,F,MAJ'"
+sched cc termination \"-D CASE1=1\" ${bug}
+sched cc termination \"-D CASE2=1\" ${bug}
+sched cc termination \"-D CASE3=1\" ${bug} -O piaDom.thresholds='0,F,MAJ,N-T'
+sched cc termination \"-D CASE4=1\" ${bug} -O piaDom.thresholds='0,F,MAJ'
 
 echo "Generated the slurm file"
 echo ""
