@@ -76,6 +76,10 @@ atomic almost_all_at_V1 =
 atomic all_at_D0_or_CR = all(Proc:pc == D0 || Proc:pc == CR);
 atomic all_at_D1_or_CR = all(Proc:pc == D1 || Proc:pc == CR);
 
+atomic all_terminate
+    = all(Proc:pc == D0 || Proc:pc == D1
+             || Proc:pc == U0 || Proc:pc == U1 || Proc:pc == CR);
+
 atomic all_not_at_D0 = all(Proc:pc != D0);
 atomic all_not_at_D1 = all(Proc:pc != D1);
 atomic all_not_at_U0 = all(Proc:pc != U0);
@@ -226,5 +230,8 @@ ltl fairness { []<>(!in_transit0 && !in_transit1) }
 
     ltl fast0 { all_at_V0 -> <>all_at_D0_or_CR }
     ltl fast1 { all_at_V1 -> <>all_at_D1_or_CR }
+
+    /* convergence (either fast or slow) */
+    ltl termination { <>all_terminate }
 #endif
 
