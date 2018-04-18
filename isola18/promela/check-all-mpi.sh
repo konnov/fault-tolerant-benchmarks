@@ -139,7 +139,7 @@ fi
 
 for c in 1 2 3; do
   for s in one_step0 fast0; do
-    sched "cf1s $s $c \"-D CASE$c=1\" ${bug}"
+    sched "cf1s $s \"-D CASE$c=1\" ${bug}"
   done
 done
 
@@ -149,7 +149,7 @@ done
 inc="\"-O schema.incremental=1\""
 for c in 1 2 3; do
       for s in one_step0 fast0 termination; do
-    sched "c1cs $s $c \"-D CASE$c=1\" $inc ${bug}"
+    sched "c1cs $s \"-D CASE$c=1\" $inc ${bug}"
   done
 done
 
@@ -159,7 +159,7 @@ done
 # a new cut point has been reached.
 for c in 1 2 3; do
   for s in lemma3_0 lemma4_0 fast0; do
-    sched "bosco $s $c \"-D CASE$c=1\" $inc ${bug}"
+    sched "bosco $s \"-D CASE$c=1\" $inc ${bug}"
   done
 done
 
@@ -171,13 +171,13 @@ done
 inc="\"-O schema.incremental=0\""
 for c in 1 2; do
   for s in unforg corr agreement; do
-    sched "aba $s $c \"-D CASE$c=1\" ${bug}"
+    sched "aba $s \"-D CASE$c=1\" ${bug}"
   done
 done
 
 inc="\"-O schema.incremental=1\""
 for c in 1 2 3 4; do
-  sched "cc validity0 $c \"-D CASE$c=1\" ${bug}"
+  sched "cc validity0 \"-D CASE$c=1\" ${bug}"
 done
 
 # Agreement and termination of cond-consensus2 require us
@@ -186,7 +186,7 @@ done
 # Note that this does not sacrifices soundness of the abstractions.
 sched "cc agreement \"-D CASE1=1\" ${bug}"
 sched "cc agreement \"-D CASE2=1\" ${bug}"
-sched "cc \"-D CASE3=1\" ${bug} -O piaDom.thresholds='0,F,MAJ,N-T'"
+sched "cc agreement \"-D CASE3=1\" ${bug} -O piaDom.thresholds='0,F,MAJ,N-T'"
 sched "cc agreement \"-D CASE4=1\" ${bug}"
 
 sched "cc termination \"-D CASE1=1\" ${bug}"
