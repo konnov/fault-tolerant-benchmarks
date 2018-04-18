@@ -7,7 +7,7 @@
 #
 # Igor Konnov, 2018
 
-NNODES=1            # the number of cluster nodes to use
+NNODES=16           # the number of cluster nodes to use
 NTASKS=16           # the number of tasks per cluster node
 JOBTIME="02:00:00"  # the upper limit on the job time
 
