@@ -5,7 +5,7 @@
 #
 # Igor Konnov, 2018
 
-NNODES=1            # the number of cluster nodes to use
+NNODES=16           # the number of cluster nodes to use
 NTASKS=16           # the number of tasks per cluster node
 JOBTIME="02:00:00"  # the upper limit on the job time
 
@@ -119,21 +119,23 @@ cat >$SCRIPT <<EOF
 
 EOF
 
-for s in unforg corr relay; do
-    sched "frb $s ${bug}"
-done
- 
-for s in unforg corr relay; do
-    sched "strb $s ${bug}"
-done
+if false; then
+    for s in unforg corr relay; do
+        sched "frb $s ${bug}"
+    done
+     
+    for s in unforg corr relay; do
+        sched "strb $s ${bug}"
+    done
 
-for s in termination1 termination2 validity nontriv; do
-    sched "nbacr $s ${bug}"
-done
+    for s in termination1 termination2 validity nontriv; do
+        sched "nbacr $s ${bug}"
+    done
 
-for s in agreement abort_validity commit_validity termination; do
-    sched "nbacg $s ${bug}"
-done
+    for s in agreement abort_validity commit_validity termination; do
+        sched "nbacg $s ${bug}"
+    done
+fi
 
 for c in 1 2 3; do
   for s in one_step0 fast0; do
@@ -146,7 +148,7 @@ done
 # a new cut point has been reached.
 inc="\"-O schema.incremental=1\""
 for c in 1 2 3; do
-  for s in one_step0 fast0; do
+      for s in one_step0 fast0 termination; do
     sched "c1cs $s $c \"-D CASE$c=1\" $inc ${bug}"
   done
 done
