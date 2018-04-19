@@ -11,9 +11,13 @@ ARGS=""
 NCORES=1            # the number of cores to use by parallel (default)
 NWORKERS=2          # the number of workers to be used by plingeling 
 SCRIPT="./script.sh"
-export SHELL="/usr/bin/env bash" # gnu parallel needs that
+export SHELL="/bin/bash" # gnu parallel needs that
 
-STACK_LIMIT_MB="128" # one-shot problems in nusmv eat a lot of stack
+case "$(uname -s)" in
+    Darwin*)    SYS=Mac;;
+    *)          SYS=Linux
+esac
+
 
 case "$1" in
     bug)
@@ -99,10 +103,10 @@ function verify {
 
     case $TECH in
     post)
-        $BYMC/verifypa-post $ARGS \
+        $BYMC/verifypa-schema $ARGS \
             --limit-mem $MAX_MEM_MB --limit-time $TIMEOUT_SEC \
-            $BENCH_DIR/$prog.pml $spec \
-            --smt "lib2|z3|-in|-smt2|-memory:$((32*1024))" $BYMC_ARGS
+            $BENCH_DIR/$prog.pml $spec $BYMC_ARGS
+            #--smt "lib2|z3|-in|-smt2|-memory:$((32*1024))" $BYMC_ARGS
             #--smt "lib2|cvc4|--lang=smt|-m|--incremental|-" "$BYMC_ARGS"
             #--smt 'lib2|mathsat' "$BYMC_ARGS"
         ;;
@@ -115,10 +119,12 @@ function verify {
 }
 
 function par {
+    A="$@"
     PAR=1
     parallel echo ::: trying parallel || PAR=0
     if [ "$PAR" -eq 0 ]; then
         echo "GNU parallel not found, using xargs w/o concurrency"
+
         if [ "$SYS" == "Mac" ]; then
             echo xargs -n 1 bash -c "$A"
             xargs -n 1 bash -c "$A"
@@ -127,7 +133,8 @@ function par {
             xargs -d "\n" -n 1 bash -c "$A"
         fi
     else
-        parallel $@
+        echo parallel --delay 3 -j$NCORES --results out "$A"
+        parallel --delay 3 -j$NCORES --results out "$A"
     fi
 }
 
@@ -138,18 +145,15 @@ function sched {
 
 rm -f verdict.txt
 
-echo -e '#!/bin/bash\n' >$SCRIPT
+echo -e '#!/usr/bin/env bash\n' >$SCRIPT
 echo "export BYMC=\"$BYMC\"" >>$SCRIPT
 echo "export BENCH_DIR=\"$BENCH_DIR\"" >>$SCRIPT
 echo "export ARGS=\"$ARGS\"" >>$SCRIPT
-echo "export AUTO=\"yes\"" >>$SCRIPT
 echo "export TECH=\"$TECH\"" >>$SCRIPT
 echo "export TIMEOUT_SEC=\"$TIMEOUT_SEC\"" >>$SCRIPT
 echo "export MAX_MEM_MB=\"$MAX_MEM_MB\"" >>$SCRIPT
 echo "export STACK_LIMIT_MB=\"$STACK_LIMIT_MB\"" >>$SCRIPT
-echo "export RATIO=\"$RATIO\"" >>$SCRIPT
 echo "export NWORKERS=\"$NWORKERS\"" >>$SCRIPT
-echo "export sat_solver=\"$sat_solver\"" >>$SCRIPT
 
 declare -pf verify >>$SCRIPT
 
@@ -245,7 +249,7 @@ echo -e "  *) echo \"Incorrect argument. Provide a number from 1 to ${SEQNO}, or
 chmod u+x "$SCRIPT"
 
 echo "Running the processes immediately"
-seq 1 ${SEQNO} | par --delay 3 -j$NCORES --results out $SCRIPT
+seq 1 ${SEQNO} | par $SCRIPT
 
 $BYMC/script/verdict-to-csv.py <verdict.txt >verdict.csv
 
