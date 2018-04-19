@@ -140,7 +140,7 @@ function par {
 
 function sched {
     inc;
-    echo "  $SEQNO) EXP_NO=$SEQNO verify $1;;" >>$SCRIPT
+    echo "  $SEQNO) EXP_NO=$SEQNO verify $@;;" >>$SCRIPT
 }
 
 rm -f verdict.txt
@@ -186,7 +186,7 @@ done
 # a new cut point has been reached.
 inc="\"-O schema.incremental=1\""
 for c in 1 2 3; do
-  for s in one_step0 fast0; do
+      for s in one_step0 fast0 termination; do
     sched c1cs $s \"-D CASE$c=1\" $inc ${bug}
   done
 done
@@ -224,7 +224,7 @@ done
 # Note that this does not sacrifices soundness of the abstractions.
 sched cc agreement \"-D CASE1=1\" ${bug}
 sched cc agreement \"-D CASE2=1\" ${bug}
-sched cc \"-D CASE3=1\" ${bug} -O piaDom.thresholds='0,F,MAJ,N-T'
+sched cc agreement \"-D CASE3=1\" ${bug} -O piaDom.thresholds='0,F,MAJ,N-T'
 sched cc agreement \"-D CASE4=1\" ${bug}
 
 sched cc termination \"-D CASE1=1\" ${bug}
