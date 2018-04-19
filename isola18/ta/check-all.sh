@@ -46,8 +46,8 @@ trap "kill -s INT 0" INT # interrupt parallel or xargs
 
 case $1 in
     uranus-post) 
-        TIMEOUT_SEC=$((5*3600)) # five hours
-        MAX_MEM_MB=$((32*1024)) # 32 GB
+        TIMEOUT_SEC=$((24*3600)) # 24 hours
+        MAX_MEM_MB=$((64*1024)) # 64 GB
         NCORES=12
         TECH=post
         ;;
