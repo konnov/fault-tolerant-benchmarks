@@ -84,7 +84,7 @@ skel Proc {
                 && (loc1 == 0))
         -> ((loc0 == 0) -> <>(locAC != 0));
 
-    relay: <>[]((2 * nsntEC < THRESH1 || loc0 == 0)
+    agreement: <>[]((2 * nsntEC < THRESH1 || loc0 == 0)
                 && (nsntRD < THRESH2 || loc0 == 0)
                 && (2 * nsntEC < THRESH1 || locEC == 0)
                 && (nsntRD < THRESH2 || locEC == 0)
