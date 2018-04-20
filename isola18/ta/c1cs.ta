@@ -202,16 +202,14 @@ skel Proc {
 
     /* fast convergence (we take only the messages from the correct processes) */
     fast0:
-        (<>[]((nsnt01CF < THRESH1 || locS0 == 0)
-                && (nsnt01CF < THRESH1 || locS1 == 0)
+        (<>[]((nsnt01CF < THRESH1 || (locS0 == 0 && locS1 == 0))
                     && loc0 == 0 && loc1 == 0))
         ->
         (loc1 == 0
             -> <>(loc0 == 0 && loc1 == 0 && locS0 == 0 && locS1 == 0
                     && locD1 == 0 && locU0 == 0 && locU1 == 0));
     fast1:
-        (<>[]((nsnt01CF < THRESH1 || locS0 == 0)
-                && (nsnt01CF < THRESH1 || locS1 == 0)
+        (<>[]((nsnt01CF < THRESH1 || (locS0 == 0 && locS1 == 0))
                     && loc0 == 0 && loc1 == 0))
         ->
         (loc0 == 0
@@ -220,8 +218,7 @@ skel Proc {
 
     /* convergence (either fast or slow) */
     termination:
-        (<>[]((nsnt01CF < THRESH1 || locS0 == 0)
-                && (nsnt01CF < THRESH1 || locS1 == 0)
+        (<>[]((nsnt01CF < THRESH1 || (locS0 == 0 && locS1 == 0))
                     && loc0 == 0 && loc1 == 0))
         ->
         <>(loc0 == 0 && loc1 == 0 && locS0 == 0 && locS1 == 0);
