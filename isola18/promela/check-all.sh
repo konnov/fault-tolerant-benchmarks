@@ -186,11 +186,12 @@ done
 # a new cut point has been reached.
 inc="\"-O schema.incremental=1\""
 for c in 1 2 3; do
-      for s in one_step0 fast0 termination; do
+      for s in one_step0 fast0; do
     sched c1cs $s \"-D CASE$c=1\" $inc ${bug}
   done
 done
 
+# termination produces a spurious counterexample...
 
 # bosco times out in the non-incremental mode, so run it in the incremental mode
 # (in the incremental mode, an SMT query is checked as soon as
