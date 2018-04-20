@@ -106,9 +106,9 @@ skel Proc {
   specifications (0) {
     /* safety */
     agreement: [](locCMT == 0 || locABR == 0);
-    validity_abort:
+    abort_validity:
         (locNO != 0 || locNOFD != 0) -> [](locCMT == 0);
-    validity_commit:
+    commit_validity:
         (locNO == 0 && locNOFD == 0 && locYESFD == 0) -> [](locABR == 0);
     
     termination:
