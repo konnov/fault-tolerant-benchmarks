@@ -2,12 +2,13 @@
 # vi:expandtab:sw=4:ts=4
 #
 # Check all the algorithms for the ISOLA'18 submission at Vienna Scientific Cluster.
+# As scheduling a job takes long, we only run the necessary experiments.
 #
 # Igor Konnov, 2018
 
 NNODES=16           # the number of cluster nodes to use
 NTASKS=16           # the number of tasks per cluster node
-JOBTIME="05:00:00"  # the upper bound on the job time
+JOBTIME="10:00:00"  # the upper bound on the job time
 
 BENCH_DIR=`dirname $0`
 export BENCH_DIR=`cd $BENCH_DIR; pwd`
@@ -43,8 +44,8 @@ trap "kill -s INT 0" INT # interrupt parallel or xargs
 
 case $1 in
     uranus-post) 
-        TIMEOUT_SEC=$((5*3600)) # five hours
-        MAX_MEM_MB=$((32*1024)) # 32 GB
+        TIMEOUT_SEC=$((24*3600)) # let the cluster limit the time
+        MAX_MEM_MB=$((64*1024)) # 32 GB
         NCORES=12
         TECH=post
         ;;
@@ -119,7 +120,7 @@ cat >$SCRIPT <<EOF
 
 EOF
 
-if false; then
+if false; then # omitted
     for s in unforg corr relay; do
         sched frb $s ${bug}
     done
@@ -138,7 +139,7 @@ if false; then
 fi
 
 for c in 1 2 3; do
-  for s in one_step0 fast0; do
+  for s in one_step0; do # omitted fast0
     sched cf1s $s \"-D CASE$c=1\" ${bug}
   done
 done
@@ -148,7 +149,7 @@ done
 # a new cut point has been reached.
 inc="\"-O schema.incremental=1\""
 for c in 1 2 3; do
-      for s in one_step0 fast0; do
+      for s in fast0; do # omitted: one_step0 
     sched c1cs $s \"-D CASE$c=1\" $inc ${bug}
   done
 done
@@ -159,36 +160,39 @@ done
 # (in the incremental mode, an SMT query is checked as soon as
 # a new cut point has been reached.
 for c in 1 2 3; do
-  for s in lemma3_0 lemma4_0 fast0; do
+  for s in lemma4_0; do # omitted lemma3_0 fast0
     sched bosco $s \"-D CASE$c=1\" $inc ${bug}
   done
 done
 
-for s in one_step0 fast0; do
+for s in fast0; do # omitted: one_step0 
   sched bosco $s \"-D CASE3=1 -D WEAKLY_1S=1\" $inc ${bug}
   sched bosco $s \"-D CASE3=1 -D STRONGLY_1S=1\" $inc ${bug}
 done
  
 inc="\"-O schema.incremental=0\""
 for c in 1 2; do
-  for s in unforg corr agreement; do
+  for s in agreement; do # omitted unforg corr 
     sched aba $s \"-D CASE$c=1\" ${bug}
   done
 done
 
 inc="\"-O schema.incremental=1\""
-for c in 1 2 3 4; do
-  sched cc validity0 \"-D CASE$c=1\" ${bug}
-done
 
-# Agreement and termination of cond-consensus2 require us
-# to play with the intervals, otherwise the experiments take too long.
-# The option piaDom.thresholds, allows us to override thresholds.
-# Note that this does not sacrifices soundness of the abstractions.
-sched cc agreement \"-D CASE1=1\" ${bug}
-sched cc agreement \"-D CASE2=1\" ${bug}
-sched cc agreement \"-D CASE3=1\" ${bug} -O piaDom.thresholds='0,F,MAJ,N-T'
-sched cc agreement \"-D CASE4=1\" ${bug}
+if false; then # omitted from the mpi benchmarks
+    for c in 1 2 3 4; do
+      sched cc validity0 \"-D CASE$c=1\" ${bug}
+    done
+
+    # Agreement and termination of cond-consensus2 require us
+    # to play with the intervals, otherwise the experiments take too long.
+    # The option piaDom.thresholds, allows us to override thresholds.
+    # Note that this does not sacrifices soundness of the abstractions.
+    sched cc agreement \"-D CASE1=1\" ${bug}
+    sched cc agreement \"-D CASE2=1\" ${bug}
+    sched cc agreement \"-D CASE3=1\" ${bug} -O piaDom.thresholds='0,F,MAJ,N-T'
+    sched cc agreement \"-D CASE4=1\" ${bug}
+fi
 
 sched cc termination \"-D CASE1=1\" ${bug}
 sched cc termination \"-D CASE2=1\" ${bug}
