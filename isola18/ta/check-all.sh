@@ -45,25 +45,32 @@ trap "kill -s INT 0" EXIT TERM
 trap "kill -s INT 0" INT # interrupt parallel or xargs
 
 case $1 in
-    uranus-post) 
-        TIMEOUT_SEC=$((24*3600)) # 24 hours
-        MAX_MEM_MB=$((64*1024)) # 64 GB
+    noninc) # non-incremental mode
+        TIMEOUT_SEC=$((24*3600)) # one day per instance
+        MAX_MEM_MB=$((32*1024)) # 32 GB
         NCORES=12
-        TECH=post
+        TECH=schema
         ;;
 
-    *-post) 
+    inc) # incremental mode
+        TIMEOUT_SEC=$((24*3600)) # one day per instance
+        MAX_MEM_MB=$((32*1024)) # 32 GB
+        NCORES=12
+        TECH=ischema
+        ;;
+
+    debug) 
         # debug
         TIMEOUT_SEC=$((300))     # five minutes per instance
         MAX_MEM_MB=$((2*1024))   # 2 GB
-        TECH=post
+        TECH=schema
         ;;
 
     *) 
         # debug
         TIMEOUT_SEC=$((300))     # five minutes per instance
         MAX_MEM_MB=$((2*1024))   # 2 gb
-        TECH=post;;
+        TECH=schema;;
 esac
 
 echo "HOSTNAME: `hostname`"
@@ -101,11 +108,20 @@ function verify {
     echo "EXP_NO=${EXP_NO}"
 
     case $TECH in
-    post)
+    schema)
         $BYMC/verifypa-schema $ARGS \
             --limit-mem $MAX_MEM_MB --limit-time $TIMEOUT_SEC \
             $BENCH_DIR/$prog.ta $spec $BYMC_ARGS
             # --smt "lib2|z3|-in|-smt2|-memory:$((32*1024))" "$BYMC_ARGS"
+            #--smt "lib2|cvc4|--lang=smt|-m|--incremental|-" "$BYMC_ARGS"
+            #--smt 'lib2|mathsat' "$BYMC_ARGS"
+        ;;
+
+    ischema)
+        $BYMC/verifypa-schema $ARGS \
+            --limit-mem $MAX_MEM_MB --limit-time $TIMEOUT_SEC \
+            $BENCH_DIR/$prog.ta $spec \
+            --smt "lib2|z3|-in|-smt2|-memory:$((32*1024))" "$BYMC_ARGS"
             #--smt "lib2|cvc4|--lang=smt|-m|--incremental|-" "$BYMC_ARGS"
             #--smt 'lib2|mathsat' "$BYMC_ARGS"
         ;;
