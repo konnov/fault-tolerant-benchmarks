@@ -45,14 +45,14 @@ trap "kill -s INT 0" EXIT TERM
 trap "kill -s INT 0" INT # interrupt parallel or xargs
 
 case $1 in
-    noninc) # non-incremental mode
+    api) # running built-in z3 in incremental mode
         TIMEOUT_SEC=$((24*3600)) # one day per instance
         MAX_MEM_MB=$((32*1024)) # 32 GB
         NCORES=12
         TECH=api
         ;;
 
-    inc) # incremental mode
+    standalone) # running standalone z3, both incremental and non-incremental
         TIMEOUT_SEC=$((24*3600)) # one day per instance
         MAX_MEM_MB=$((32*1024)) # 32 GB
         NCORES=12
