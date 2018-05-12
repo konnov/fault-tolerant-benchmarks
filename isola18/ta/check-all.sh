@@ -49,28 +49,28 @@ case $1 in
         TIMEOUT_SEC=$((24*3600)) # one day per instance
         MAX_MEM_MB=$((32*1024)) # 32 GB
         NCORES=12
-        TECH=schema
+        TECH=api
         ;;
 
     inc) # incremental mode
         TIMEOUT_SEC=$((24*3600)) # one day per instance
         MAX_MEM_MB=$((32*1024)) # 32 GB
         NCORES=12
-        TECH=ischema
+        TECH=standalone
         ;;
 
     debug) 
         # debug
         TIMEOUT_SEC=$((300))     # five minutes per instance
         MAX_MEM_MB=$((2*1024))   # 2 GB
-        TECH=schema
+        TECH=api
         ;;
 
     *) 
         # debug
         TIMEOUT_SEC=$((300))     # five minutes per instance
         MAX_MEM_MB=$((2*1024))   # 2 gb
-        TECH=schema;;
+        TECH=api;;
 esac
 
 echo "HOSTNAME: `hostname`"
@@ -108,7 +108,7 @@ function verify {
     echo "EXP_NO=${EXP_NO}"
 
     case $TECH in
-    schema)
+    api)
         $BYMC/verifypa-schema $ARGS \
             --limit-mem $MAX_MEM_MB --limit-time $TIMEOUT_SEC \
             $BENCH_DIR/$prog.ta $spec $BYMC_ARGS
@@ -117,7 +117,7 @@ function verify {
             #--smt 'lib2|mathsat' "$BYMC_ARGS"
         ;;
 
-    ischema)
+    standalone)
         $BYMC/verifypa-schema $ARGS \
             --limit-mem $MAX_MEM_MB --limit-time $TIMEOUT_SEC \
             $BENCH_DIR/$prog.ta $spec \
