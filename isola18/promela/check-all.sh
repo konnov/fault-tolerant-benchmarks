@@ -112,7 +112,7 @@ function verify {
     api)
         $BYMC/verifypa-schema $ARGS \
             --limit-mem $MAX_MEM_MB --limit-time $TIMEOUT_SEC \
-            $BENCH_DIR/$prog.ta $spec $BYMC_ARGS
+            $BENCH_DIR/$prog.pml $spec $BYMC_ARGS
             # --smt "lib2|z3|-in|-smt2|-memory:$((32*1024))" "$BYMC_ARGS"
             #--smt "lib2|cvc4|--lang=smt|-m|--incremental|-" "$BYMC_ARGS"
             #--smt 'lib2|mathsat' "$BYMC_ARGS"
@@ -121,7 +121,7 @@ function verify {
     standalone)
         $BYMC/verifypa-schema $ARGS \
             --limit-mem $MAX_MEM_MB --limit-time $TIMEOUT_SEC \
-            $BENCH_DIR/$prog.ta $spec \
+            $BENCH_DIR/$prog.pml $spec \
             --smt "lib2|z3|-in|-smt2|-memory:$((32*1024))" "$BYMC_ARGS"
             #--smt "lib2|cvc4|--lang=smt|-m|--incremental|-" "$BYMC_ARGS"
             #--smt 'lib2|mathsat' "$BYMC_ARGS"
