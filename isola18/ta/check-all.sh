@@ -47,14 +47,14 @@ trap "kill -s INT 0" INT # interrupt parallel or xargs
 case $1 in
     api) # running built-in z3 in incremental mode
         TIMEOUT_SEC=$((24*3600)) # one day per instance
-        MAX_MEM_MB=$((32*1024)) # 32 GB
+        MAX_MEM_MB=$((64*1024)) # 64 GB
         NCORES=12
         TECH=api
         ;;
 
     standalone) # running standalone z3, both incremental and non-incremental
         TIMEOUT_SEC=$((24*3600)) # one day per instance
-        MAX_MEM_MB=$((32*1024)) # 32 GB
+        MAX_MEM_MB=$((64*1024)) # 64 GB
         NCORES=12
         TECH=standalone
         ;;
