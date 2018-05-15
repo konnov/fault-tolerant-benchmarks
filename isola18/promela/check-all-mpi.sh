@@ -8,7 +8,7 @@
 
 NNODES=16           # the number of cluster nodes to use
 NTASKS=16           # the number of tasks per cluster node
-JOBTIME="10:00:00"  # the upper bound on the job time
+JOBTIME="24:00:00"  # the upper bound on the job time
 
 BENCH_DIR=`dirname $0`
 export BENCH_DIR=`cd $BENCH_DIR; pwd`

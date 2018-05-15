@@ -9,7 +9,7 @@
 
 NNODES=16           # the number of cluster nodes to use
 NTASKS=16           # the number of tasks per cluster node
-JOBTIME="02:00:00"  # the upper limit on the job time
+JOBTIME="24:00:00"  # the upper limit on the job time
 
 BENCH_DIR=`dirname $0`
 export BENCH_DIR=`cd $BENCH_DIR; pwd`
@@ -52,7 +52,7 @@ trap "kill -s INT 0" INT # interrupt parallel or xargs
 
 case $1 in
     mpi) 
-        TIMEOUT_SEC=$((5*3600)) # five hours
+        TIMEOUT_SEC=$((24*3600)) # 24 hours
         MAX_MEM_MB=$((32*1024)) # 32 GB
         TECH=post
         ;;
