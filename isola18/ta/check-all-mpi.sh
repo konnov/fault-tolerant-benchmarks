@@ -51,17 +51,9 @@ trap "kill -s INT 0" EXIT TERM
 trap "kill -s INT 0" INT # interrupt parallel or xargs
 
 case $1 in
-    uranus-post) 
+    mpi) 
         TIMEOUT_SEC=$((5*3600)) # five hours
         MAX_MEM_MB=$((32*1024)) # 32 GB
-        NCORES=12
-        TECH=post
-        ;;
-
-    *-post) 
-        # debug
-        TIMEOUT_SEC=$((300))     # five minutes per instance
-        MAX_MEM_MB=$((2*1024))   # 2 GB
         TECH=post
         ;;
 
