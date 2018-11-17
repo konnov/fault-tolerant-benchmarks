@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# This is a modified version of mako-render.
+# Apart from rendering a template it also loads data from script arguments.
+#
+# Igor Konnov, 2010
+
+from mako import exceptions
+import os
+
+def render(iname, oname, **kwargs):
+    from mako.template import Template
+    from mako.lookup import TemplateLookup
+
+    lookup = TemplateLookup(["."])
+    template = lookup.get_template(iname)
+    try:
+        with open(oname, "w+") as of:
+            of.write(template.render(**kwargs))
+            print("rendered {0} -> {1}".format(iname, oname))
+        return template.render(**kwargs)
+    except:
+        print(exceptions.text_error_template().render())
+
+
+def main(argv=None):
+    for _, _, files in os.walk(".", topdown=False):
+        for name in files:
+            if name.endswith(".ta.mako"):
+                oname = name[:-len(".mako")]
+                render(name, "p-" + oname) # probabilities
+                render(name, "n-" + oname, norandom=True) # no probabilities
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,203 @@
+/* A threshold automaton for a single round of Ben-Or probabilistic consensus
+   with coin flip (Protocol B -- Byzantine Protocol).
+   
+   Nathalie Bertrand, Igor Konnov, Marijana Lazic, Josef Widder, 2018.
+ */
+
+thresholdAutomaton Proc {
+  /* the control locations are as follows:
+    0 is the initial state with value 0 (V0),
+    1 is the initial state with value 1 (V1),
+    2 is the sent state (SR),
+    3 is the sent propose (SP),
+    4 is the decided 0 (D0),
+    5 is the decided 1 (D1),
+    6 is coin flip (CF),
+    7 is estimate 0 (E0),
+    8 is estimate in 1 (E1)
+   */
+  local pc;
+  /* the number of messages sent by the correct processes */
+  shared nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q;
+  parameters N, T, F;
+
+  assumptions (0) {
+    N > 5 * T;
+    T >= F;
+    T >= 1;
+  }
+
+  locations (0) {
+    locV0: [0];
+    locV1: [1];
+    locSR: [2];
+    locSP: [3];
+    locD0: [4];
+    locD1: [5];
+    locCF: [6];
+    locE0: [7];
+    locE1: [8];
+  }
+
+  inits (0) {
+    (locV0 + locV1) == N - F;
+    locSR == 0;
+    locSP == 0;
+    locD0 == 0;
+    locD1 == 0;
+    locCF == 0;
+    locE0 == 0;
+    locE1 == 0;
+    nsntR0 == 0;
+    nsntR1 == 0;
+    nsntR01 == 0;
+    nsntP0 == 0;
+    nsntP1 == 0;
+    nsntPQ == 0;
+    nsntP01Q == 0;
+  }
+
+  rules (0) {
+  /* step 1 */
+  0: locV0 -> locSR
+      when (true)
+      do { nsntR0' == nsntR0 + 1; nsntR01' == nsntR01 + 1;
+           unchanged(nsntR1, nsntP0, nsntP1, nsntPQ, nsntP01Q);
+         };
+  1: locV1 -> locSR
+      when (true)
+      do { nsntR1' == nsntR1 + 1; nsntR01' == nsntR01 + 1;
+           unchanged(nsntR0, nsntP0, nsntP1, nsntPQ, nsntP01Q);
+         };
+  /* step 2 */
+  2: locSR -> locSP
+      when (nsntR01 + F >= N - T && 2 * (nsntR0 + F) > N + T)
+      do { nsntP0' == nsntP0 + 1; nsntP01Q' == nsntP01Q + 1;
+           unchanged(nsntR0, nsntR1, nsntR01, nsntP1, nsntPQ);
+         };
+  3: locSR -> locSP
+      when (nsntR01 + F >= N - T && 2 * (nsntR1 + F) > N + T)
+      do { nsntP1' == nsntP1 + 1; nsntP01Q' == nsntP01Q + 1;
+           unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntPQ);
+         };
+  4: locSR -> locSP
+      when (nsntR01 + F >= N - T
+        && 2 * nsntR0 >= N - 3 * T - 2 * F &&  2 * nsntR1 >= N - 3 * T - 2 * F)
+	/*
+	When can it be the case that rule 3 does not fire 
+	  although N - T messages are received?
+	When
+	 - a process receives N - T messages,
+	 - F of those a messages contain 0 by faulty processes
+	Then the number of received 1s is N - T - F - nsntR0 \le (N + T)/2
+	 - after some massaging:
+	  (1) nsntR0 \le (N - 3 * T)/2 - F
+        Similarly rule 2 may not fire if
+	  (2) nsntR1 \le (N - 3 * T)/2 - F
+	If both, (1) and (2) hold, it could be that neither rule 2 nor rule 3 fires,
+	in other words, rule 4 may fire
+	*/	
+      do { nsntPQ' == nsntPQ + 1; nsntP01Q' == nsntP01Q + 1;
+           unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1);
+         };
+  /* step 3 */
+  5: locSP -> locD0
+      when (nsntP01Q + F >= N - T && 2 * (nsntP0 + F) > N + T)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q);
+         };
+  6: locSP -> locD1
+      when (nsntP01Q + F >= N - T && 2 * (nsntP1 + F) > N + T)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q);
+         };
+  7: locSP -> locE0
+  /*
+  Under the assumption that never P0 and P1 are sent by correct processes in the
+  same round, we apply the same reasoning as for rule 4 and get the same
+  threshold expression. More precise expression below.
+  */
+  /*
+  Actually the second threshold expression should be replaced by
+  nsntP0Q >= N - 3 * T - 2 * F && nsntP1Q >= N - 3 * T - 2 * F
+  reasoning: you have received not enough 1s and not enough 0 to decide, so there
+             must be many other messages around.
+  */
+      when (nsntP01Q + F >= N - T && 2 * nsntPQ >= N - 3 * T - 2 * F && nsntP0 + F >= T + 1)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q);
+         };
+  /*
+  Similarly as above
+  nsntP0Q >= N - 3 * T - 2 * F && nsntP1Q >= N - 3 * T - 2 * F
+  */
+  8: locSP -> locE1
+      when (nsntP01Q + F >= N - T && 2 * nsntPQ >= N - 3 * T - 2 * F && nsntP1 + F >= T + 1)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q);
+         };
+  9: locSP -> locCF
+  /*
+  again same reasoning but less than T + 1 zeros (or ones) are received requires
+  more questionmarks
+  */
+      when (nsntP01Q + F >= N - T && 2 * nsntPQ >= N - 3 * T - 2 * F
+                                  && nsntPQ > N - 2 * T - F - 1)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q);
+           /* flip a coin with that produces
+                0 (with prob. 1/2) or 1 (with prob. 1/2) */
+         };
+
+
+  /* self loops */
+  21: locV0 -> locV0
+      when (true)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q); };
+  22: locV1 -> locV1
+      when (true)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q); };
+  23: locD0 -> locD0
+      when (true)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q); };
+  24: locD1 -> locD1
+      when (true)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q); };
+  25: locE0 -> locE0
+      when (true)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q); };
+  26: locE1 -> locE1
+      when (true)
+      do { unchanged(nsntR0, nsntR1, nsntR01, nsntP0, nsntP1, nsntPQ, nsntP01Q); };
+  }
+  specifications (0) {
+    /* safety */
+
+    validity0: (locV1 == 0) -> [](locD1 == 0 && locE1 == 0);
+    validity1: (locV0 == 0) -> [](locD0 == 0 && locE0 == 0);
+
+    agreement0: []((locD0 != 0) -> [](locD1 == 0 && locE1 == 0));
+    agreement1: []((locD1 != 0) -> [](locD0 == 0 && locE0 == 0));
+
+    completeness0:
+        (locV1 == 0) -> [] (locD1 == 0 && locE1 == 0);
+    completeness1:
+        (locV0 == 0) -> [] (locD0 == 0 && locE0 == 0);
+
+    round_term:
+        <>[](  (nsntR01 < N - T || locSR == 0)
+            && ((nsntP01Q < N - T) || locSP == 0)
+            && locV0 == 0 && locV1 == 0)
+            ->
+            <> (locV0 == 0 && locV1 == 0 && locSR == 0 && locSP == 0);
+
+    decide_or_flip:
+        <>[](  (nsntR01 < N - T || locSR == 0)
+            && ((nsntP01Q < N - T) || locSP == 0)
+            && locV0 == 0 && locV1 == 0)
+            ->
+            <> (locV0 == 0 && locV1 == 0 && locSR == 0 && locSP == 0
+                    && locD1 == 0 && locE1 == 0
+                || 
+                locV0 == 0 && locV1 == 0 && locSR == 0 && locSP == 0
+                    && locD0 == 0 && locE0 == 0);
+
+  }
+} /* Proc */
+
+

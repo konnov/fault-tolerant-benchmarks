@@ -1,0 +1,336 @@
+/* A threshold automaton for a single round of Ben-Or probabilistic consensus
+   with coin flip (Protocol A -- crashes).
+   Here we consider dirty crashes, that is, a process can send a message
+   to a subset of processes just before crashing.
+   
+   Nathalie Bertrand, Igor Konnov, Marijana Lazic, Josef Widder, 2017.
+ */
+
+thresholdAutomaton Proc {
+  /* the control locations are as follows:
+    0 is the initial state with value 0 (V0),
+    1 is the initial state with value 1 (V1),
+    2 is the sent state (SR),
+    3 is the sent propose (SP),
+    4 is the decided 0 (D0),
+    5 is the decided 1 (D1),
+    6 is coin flip (CF),
+    7 is estimate 0 (E0),
+    8 is estimate in 1 (E1),
+    9 is crashed (CR),
+   */
+  local pc;
+  /* the number of messages sent by the correct processes */
+  shared sR0, sR1, sP0, sP1, sPQ;
+  /* the number of messages sent by the crashed processes */
+  shared fR0, fR1, fP0, fP1, fPQ;
+  shared nfaulty;
+  parameters N, T, Fi /* crashed initially */, Fe /* crashed later */;
+
+  assumptions (0) {
+    N > 2 * T;
+    T >= Fi + Fe;
+    T >= 1;
+  }
+
+  locations (0) {
+    locV0: [0];
+    locV1: [1];
+    locSR: [2];
+    locSP: [3];
+    locD0: [4];
+    locD1: [5];
+    locCF: [6];
+    locE0: [7];
+    locE1: [8];
+    locCR: [9];
+  }
+
+  inits (0) {
+    (locV0 + locV1) == N - Fi;
+    locSR == 0;
+    locSP == 0;
+    locD0 == 0;
+    locD1 == 0;
+    locCF == 0;
+    locE0 == 0;
+    locE1 == 0;
+    locCR == Fi;
+    sR0 == 0;
+    sR1 == 0;
+    sP0 == 0;
+    sP1 == 0;
+    sPQ == 0;
+    fR0 == 0;
+    fR1 == 0;
+    fP0 == 0;
+    fP1 == 0;
+    fPQ == 0;
+    nfaulty == 0;
+  }
+
+  rules (0) {
+  1: locV0 -> locSR /* send 0 */
+      when (true)
+      do { sR0' == sR0 + 1; 
+           unchanged(sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+  1: locV1 -> locSR /* send 1 */
+      when (true)
+      do { sR1' == sR1 + 1; 
+           unchanged(sR0, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+
+  2: locV0 -> locCR /* crash while sending */
+      when (nfaulty < Fe)
+      do { fR0' == fR0 + 1; nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR1, fR1, fP0, fP1, fPQ);
+         };
+  2: locV1 -> locCR /* crash while sending */
+      when (nfaulty < Fe)
+      do { fR1' == fR1 + 1; nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+
+  3: locSR -> locSP
+      when (sR0 + sR1 >= N - T && 2 * sR0 > N)
+      do { sP0' == sP0 + 1;
+           unchanged(sR0, sR1, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+  3: locSR -> locSP
+      when (sR0 + sR1 >= N - T && 2 * sR1 > N)
+      do { sP1' == sP1 + 1;
+           unchanged(sR0, sR1, sP0, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+
+  4: locSR -> locCR /* crash while sending */
+      when (sR0 + sR1 >= N - T
+                && 2 * sR0 > N
+                && nfaulty < Fe)
+      do { fP0' == fP0 + 1; nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP1, fPQ);
+         };
+  4: locSR -> locCR /* crash while sending */
+      when (sR0 + sR1 >= N - T
+                && 2 * sR1 > N
+                && nfaulty < Fe)
+      do { fP1' == fP1 + 1; nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fPQ);
+         };
+
+  5: locSR -> locSP
+      when (sR0 + sR1 >= N - T
+                && 2 * sR0 >= N - 2 * T
+                && 2 * sR1 >= N - 2 * T)
+      do { sPQ' == sPQ + 1;
+           unchanged(sR0, sR1, sP0, sP1, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+
+  6: locSR -> locCR /* crash while sending */
+      when (sR0 + sR1 >= N - T
+                && 2 * sR0 >= N - 2 * T
+                && 2 * sR1 >= N - 2 * T
+                && nfaulty < Fe)
+      do { fPQ' == fPQ + 1; nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1);
+         };
+
+  7: locSP -> locD0
+      when (sP0 + sP1 + sPQ >= N - T && sP0 >= T + 1)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+
+  8: locSP -> locD1
+      when (sP0 + sP1 + sPQ >= N - T && sP1 >= T + 1)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+
+  9: locSP -> locE0
+  /*
+  following the reasoning in the Byzantine case, the second threshold should be
+  sP0Q >= N - 2 * T - 1 && sP1Q >= N - 2 * T - 1
+  also in rule 8
+  */
+      when (sP0 + sP1 + sPQ >= N - T
+            && sPQ >= N - 2 * T - 1 && sP0 > 0)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+
+  10: locSP -> locE1
+     when (sP0 + sP1 + sPQ >= N - T
+            && sPQ >= N - 2 * T - 1 && sP1 > 0)
+     do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+
+  11: locSP -> locCF
+     when (sP0 + sP1 + sPQ >= N - T
+            && sPQ >= N - 2 * T - 1 && sPQ >= N - T)
+     do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+          unchanged(fR0, fR1, fP0, fP1, fPQ);
+           /* flip a coin with that produces
+                0 (with prob. 1/2) or 1 (with prob. 1/2) */
+         };
+
+  /* coin == 0 modeled by non-determinism */
+  12: locCF -> locE0
+      when (true)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+          };
+  /* coin == 1 modeled by non-determinism */
+  12: locCF -> locE1
+      when (true)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+          };
+
+  /* fail by crashing without sending a message */
+  14: locV0 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+  14: locV1 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+  14: locSR -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+  14: locSP -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+  14: locD0 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+  14: locD1 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+  14: locE0 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+  14: locE1 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+  14: locCF -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sR0, sR1, sP0, sP1, sPQ);
+           unchanged(fR0, fR1, fP0, fP1, fPQ);
+         };
+
+  /* self loops */
+  15: locV0 -> locV0
+      when (true)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ); };
+  15: locV1 -> locV1
+      when (true)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ); };
+  15: locD0 -> locD0
+      when (true)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ); };
+  15: locD1 -> locD1
+      when (true)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ); };
+  15: locE0 -> locE0
+      when (true)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ); };
+  15: locE1 -> locE1
+      when (true)
+      do { unchanged(sR0, sR1, sP0, sP1, sPQ, nfaulty);
+           unchanged(fR0, fR1, fP0, fP1, fPQ); };
+  }
+
+  specifications (0) {
+    /* safety */
+    validity0: (locV1 == 0) -> [](locD1 == 0 && locE1 == 0);
+    validity1: (locV0 == 0) -> [](locD0 == 0 && locE0 == 0);
+
+    agreement0: []((locD0 != 0) -> [](locD1 == 0 && locE1 == 0));
+    agreement1: []((locD1 != 0) -> [](locD0 == 0 && locE0 == 0));
+
+    completeness0:
+        (locV1 == 0) -> [] (locD1 == 0 && locE1 == 0);
+    completeness1:
+        (locV0 == 0) -> [] (locD0 == 0 && locE0 == 0);
+
+    round_term:
+        <>[](  (sR0 + sR1 < N - T || locSR == 0)
+            && ((sP0 + sP1 + sPQ < N - T) || locSP == 0)
+            && locV0 == 0 && locV1 == 0)
+            ->
+            <> (locV0 == 0 && locV1 == 0 && locSR == 0 && locSP == 0);
+
+    decide_or_flip:
+        <>[](  (sR0 + sR1 < N - T || locSR == 0)
+            && ((sP0 + sP1 + sPQ < N - T) || locSP == 0)
+            && locV0 == 0 && locV1 == 0)
+            ->
+            <> (locV0 == 0 && locV1 == 0 && locSR == 0 && locSP == 0
+                    && locD1 == 0 && locE1 == 0
+                || 
+                locV0 == 0 && locV1 == 0 && locSR == 0 && locSP == 0
+                    && locD0 == 0 && locE0 == 0);
+
+    univalent20:
+        <>[](  (sR0 + sR1 < N - T || locSR == 0)
+            && ((sP0 + sP1 + sPQ < N - T) || locSP == 0)
+            && locV0 == 0 && locV1 == 0)
+        && (locV1 == 0) -> <> (locD0 != 0 || locE0 != 0);
+    univalent21:
+        <>[](  (sR0 + sR1 < N - T || locSR == 0)
+            && ((sP0 + sP1 + sPQ < N - T) || locSP == 0)
+            && locV0 == 0 && locV1 == 0)
+        && (locV0 == 0) -> <> (locD1 != 0 || locE1 != 0);
+
+    univalent30:
+        <>[](  (sR0 + sR1 < N - T || locSR == 0)
+            && ((sP0 + sP1 + sPQ < N - T) || locSP == 0)
+            && locV0 == 0 && locV1 == 0)
+        && (locV1 == 0) -> <> (locV0 == 0 && locV1 == 0 && locSR == 0
+            && locSP == 0 && locD1 == 0 && locE1 == 0);
+
+  }
+} /* Proc */
+
+

@@ -1,0 +1,394 @@
+/* A threshold automaton for a single round of the randomized k-set agreement
+   by Mostefaoui, Moumen, Raynal (TCS, 2018), Fig. 1.
+
+   In this benchmark, k equals 2, and the initial values come from {0, 1, 2}.
+   
+   Nathalie Bertrand, Igor Konnov, Marijana Lazic, Josef Widder, 2018.
+ */
+
+thresholdAutomaton Proc {
+  /* the control locations are as follows:
+    0 is the initial estimation 0 (V0),
+    1 is the initial estimation 1 (V1),
+    2 is the initial estimation 2 (V2),
+    3 is the state after sending phase 1 messages, line 3 (P1),
+    4 is the state after sending phase 2 messages, line 7 (P2),
+    5 is decided on 0, line 11 (D0),
+    6 is decided on 1, line 11 (D1),
+    7 is decided on 2, line 11 (D2),
+    8 is coin flip, line 10 (CF),
+    9 is estimate 0, line 12 (E0),
+    10 is estimate 1, line 12 (E1),
+    11 is estimate 2, line 12 (E2),
+    12 is crashed (CR),
+   */
+  local pc;
+  /* the number of messages sent by the correct processes */
+  shared sP10, sP11, sP12; /* the estimations that are broadcasted in phase 1, line 3 */ 
+  shared sP20, sP21, sP22, sP2bot; /* the estimations that are broadcasted in phase 2, line 7 */ 
+  shared sD0,  sD1,  sD2;    /* the decisions that are broadcasted in line 11 */ 
+
+  shared nfaulty;
+  parameters N, T, Fi /* initially faulty */, Fe /* eventually faulty */;
+
+  assumptions (0) {
+    N > 3 * T; /* what happens if n > 2t? */
+    T >= Fi + Fe;
+    T >= 1;
+  }
+
+  locations (0) {
+    locV0: [0];
+    locV1: [1];
+    locV2: [2];
+    locP1: [3];
+    locP2: [4];
+    locD0: [5];
+    locD1: [6];
+    locD2: [7];
+    locCF: [8];
+    locE0: [9];
+    locE1: [10];
+    locE2: [11];
+    locCR: [12];
+  }
+
+  inits (0) {
+    (locV0 + locV1 + locV2) == N - Fi;
+    locP1 == 0; locP2 == 0;
+    locD0 == 0; locD1 == 0; locD2 == 0;
+    locCF == 0;
+    locE0 == 0; locE1 == 0; locE2 == 0;
+    locCR == Fi;
+    sP10 == 0; sP11 == 0; sP12 == 0;
+    sP20 == 0; sP21 == 0; sP22 == 0;
+    sP2bot == 0;
+    sD0 == 0; sD1 == 0; sD2 == 0;
+    nfaulty == 0;
+  }
+
+  rules (0) {
+    /* We omit the broadcast in line 1, as it simply updates
+       values in the array val_i. Thus, this broadcast does not play
+       any role in the threshold automaton.
+     */
+
+    /* line 3 */
+  0: locV0 -> locP1
+      when (true)
+      do { sP10' == sP10 + 1;
+           unchanged(sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  1: locV1 -> locP1
+      when (true)
+      do { sP11' == sP11 + 1;
+           unchanged(sP10, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  2: locV2 -> locP1
+      when (true)
+      do { sP12' == sP12 + 1;
+           unchanged(sP10, sP11, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+
+    /* lines 4-7 */
+  6: locP1 -> locP2
+      when ((3 * (sP10 + sP11 + sP12) >= 2 * (N - 2) + 3)
+                && (3 * sP10 >= N - 2 + 3))
+      do { sP20' == sP20 + 1;
+           unchanged(sP10, sP11, sP12, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  7: locP1 -> locP2
+      when ((3 * (sP10 + sP11 + sP12) >= 2 * (N - 2) + 3)
+                && (3 * sP11 >= N - 2 + 3))
+      do { sP21' == sP21 + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  8: locP1 -> locP2
+      when ((3 * (sP10 + sP11 + sP12) >= 2 * (N - 2) + 3)
+                && (3 * sP12 >= N - 2 + 3))
+      do { sP22' == sP22 + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP2bot, sD0, sD1, sD2, nfaulty); };
+
+
+    /* DONE: Josef checked, whether he liked the less-than expressions
+             and replaced them */
+  9: locP1 -> locP2                                  /* else in line 6 */
+      when ((3 * (sP10 + sP11 + sP12) >= 2 * (N - 2) + 3)
+         && (3 * (sP10 + sP11) > N + 3)
+         && (3 * (sP10 + sP12) > N + 3)
+         && (3 * (sP11 + sP12) > N + 3))
+      do { sP2bot' == sP2bot + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sD0, sD1, sD2, nfaulty); };
+
+    /* line 8 */
+    /* value 0 */
+  10: locP2 -> locD0                                 /* lines 8, 9, 11 */
+      when (2 * sP20 >= (N - 1) + 2)
+      do { sD0' == sD0 + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD1, sD2, nfaulty); };
+  11: locP2 -> locE0                                 /* lines 8, 9, 12 */
+      when ((2 * sP20 >= (N - 1) + 2) && sP2bot > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  12: locP2 -> locE1                                 /* lines 8, 9, 12 */
+      when ((2 * sP20 >= (N - 1) + 2) && sP2bot > 0 && sP21 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  13: locP2 -> locE2                                 /* lines 8, 9, 12 */
+      when ((2 * sP20 >= (N - 1) + 2) && sP2bot > 0 && sP22 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+    /* value 1 */
+  14: locP2 -> locD1                                /* lines 8, 9, 11 */
+      when (2 * sP21 >= (N - 1) + 2)
+      do { sD1' == sD1 + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD2, nfaulty); };
+  15: locP2 -> locE1                                /* lines 8, 9, 12 */
+      when ((2 * sP21 >= (N - 1) + 2) && sP2bot > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  16: locP2 -> locE0                                /* lines 8, 9, 12 */
+      when ((2 * sP21 >= (N - 1) + 2) && sP2bot > 0 && sP20 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  17: locP2 -> locE2                                /* lines 8, 9, 12 */
+      when ((2 * sP21 >= (N - 1) + 2) && sP2bot > 0 && sP22 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+    /* value bot */
+  18: locP2 -> locCF                                /* lines 8, 9, 10 */
+      when (2 * sP2bot >= (N - 1) + 2)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  19: locP2 -> locE0                                /* lines 8, 9, 12 */
+      when ((2 * sP2bot >= (N - 1) + 2) && sP20 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  20: locP2 -> locE1                                /* lines 8, 9, 12 */
+      when ((2 * sP2bot >= (N - 1) + 2) && sP21 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  21: locP2 -> locE2                                /* lines 8, 9, 12 */
+      when ((2 * sP2bot >= (N - 1) + 2) && sP22 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+
+
+  /* received D0, D1, or D2 as per line 16 */
+  25: locP1 -> locD0
+      when (sD0 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  26: locP2 -> locD0
+      when (sD0 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  28: locE0 -> locD0
+      when (sD0 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  29: locE1 -> locD0
+      when (sD0 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  30: locP1 -> locD1
+      when (sD1 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  31: locP2 -> locD1
+      when (sD1 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  33: locE0 -> locD1
+      when (sD1 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  34: locE1 -> locD1
+      when (sD1 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  35: locP1 -> locD2
+      when (sD2 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  36: locP2 -> locD2
+      when (sD2 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  38: locE0 -> locD2
+      when (sD2 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  39: locE1 -> locD2
+      when (sD2 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+
+  /* crashes */
+  40: locV0 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locV1 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locV2 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locP1 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locP2 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locD0 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locD1 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locD2 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locE0 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locE1 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locE2 -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+  40: locCF -> locCR
+      when (nfaulty < Fe)
+      do { nfaulty' == nfaulty + 1;
+           unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2); };
+
+  /* coin == 0 modeled by non-determinism */
+  55: locCF -> locD0
+      when (sD0 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  /* coin flips, note that we abstract from the uniform distribution random([1..n]) */
+  22: locCF -> locE0                                /* line 10 */
+      when (sP20 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  /* coin == 1 modeled by non-determinism */
+  55: locCF -> locD1
+      when (sD1 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  /* coin flips, note that we abstract from the uniform distribution random([1..n]) */
+  22: locCF -> locE1                                /* line 10 */
+      when (sP21 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+  /* coin == 2 modeled by non-determinism */
+  55: locCF -> locD2
+      when (sD2 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  /* coin flips, note that we abstract from the uniform distribution random([1..n]) */
+  22: locCF -> locE2                                /* line 10 */
+      when (sP22 > 0)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot, sD0, sD1, sD2, nfaulty); };
+
+  /* self loops */
+  61: locP1 -> locP1
+      when (true)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  61: locP2 -> locP2
+      when (true)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  61: locD0 -> locD0
+      when (true)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  61: locD1 -> locD1
+      when (true)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  61: locD2 -> locD2
+      when (true)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  61: locE0 -> locE0
+      when (true)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  61: locE1 -> locE1
+      when (true)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  61: locE2 -> locE2
+      when (true)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  61: locCF -> locCF
+      when (true)
+      do { unchanged(sP10, sP11, sP12, sP20, sP21, sP22, sP2bot,
+                     sD0, sD1, sD2, nfaulty); };
+  }
+
+  specifications (0) {
+    /* Validity requires that the processes decide on an initial value */
+    validity02: (locV1 == 0) -> [](locD1 == 0 && locE1 == 0);
+    validity12: (locV0 == 0) -> [](locD0 == 0 && locE0 == 0);
+    validity01: (locV2 == 0) -> [](locD2 == 0 && locE2 == 0);
+    /*
+       The following property does not fit into the LTL_FT fragment of POPL17,
+       but, to our luck, it is still a reachability property, so CAV15 applies.
+
+       In 2-set agreement, the correct processes may decide on 2 values, but not on 3.
+     */
+    agreement2: [](locD0 == 0 || locD1 == 0 || locD2 == 0);
+
+    completeness0:
+        (locV0 == 0) -> [] (locD0 == 0);
+    completeness1:
+        (locV1 == 0) -> [] (locD1 == 0);
+    completeness2:
+        (locV2 == 0) -> [] (locD2 == 0);
+
+    round_term:
+        <>[](  (3 * (sP10 + sP11 + sP12) < 2 * (N - 2) + 3
+                    || locP1 == 0)
+            && (2 * (sP20 + sP21 + sP22 + sP2bot) < (N - 1) + 2 || locP2 == 0)
+            && locV0 == 0 && locV1 == 0 && locV2 == 0)
+            ->
+            <> (locV0 == 0 && locV1 == 0 && locV2 == 0
+                && locP1 == 0 && locP2 == 0);
+
+    decide_or_flip:
+        <>[](  (3 * (sP10 + sP11 + sP12) < 2 * (N - 2) + 3
+                    || locP1 == 0)
+            && (2 * (sP20 + sP21 + sP22 + sP2bot) < (N - 1) + 2 || locP2 == 0)
+            && locV0 == 0 && locV1 == 0 && locV2 == 0)
+            ->
+            <> (locV0 == 0 && locV1 == 0 && locV2 == 0
+                    && locP1 == 0 && locP2 == 0
+                    && locD0 == 0 && locE0 == 0
+                    || 
+                locV0 == 0 && locV1 == 0 && locV2 == 0
+                    && locP1 == 0 && locP2 == 0
+                    && locD1 == 0 && locE1 == 0
+                    || 
+                locV0 == 0 && locV1 == 0 && locV2 == 0
+                    && locP1 == 0 && locP2 == 0
+                    && locD2 == 0 && locE2 == 0);
+
+    univalent20:
+        <>[](  (3 * (sP10 + sP11 + sP12) < 2 * (N - 2) + 3
+                    || locP1 == 0)
+            && (2 * (sP20 + sP21 + sP22 + sP2bot) < (N - 1) + 2 || locP2 == 0)
+            && locV0 == 0 && locV1 == 0 && locV2 == 0)
+        && (locV1 == 0 && locV2 == 0) /* all processes start with 0 */
+        ->
+        <> (locD0 != 0 || locE0 != 0);
+
+    univalent21:
+        <>[](  (3 * (sP10 + sP11 + sP12) < 2 * (N - 2) + 3
+                    || locP1 == 0)
+            && (2 * (sP20 + sP21 + sP22 + sP2bot) < (N - 1) + 2 || locP2 == 0)
+            && locV0 == 0 && locV1 == 0 && locV2 == 0)
+        && (locV0 == 0 && locV2 == 0) /* all processes start with 1 */
+        ->
+        <> (locD1 != 0 || locE1 != 0);
+
+    univalent22:
+        <>[](  (3 * (sP10 + sP11 + sP12) < 2 * (N - 2) + 3
+                    || locP1 == 0)
+            && (2 * (sP20 + sP21 + sP22 + sP2bot) < (N - 1) + 2 || locP2 == 0)
+            && locV0 == 0 && locV1 == 0 && locV2 == 0)
+        && (locV0 == 0 && locV1 == 0) /* all processes start with 2 */
+        ->
+        <> (locD2 != 0 || locE2 != 0);
+
+  }
+} /* Proc */
+
+

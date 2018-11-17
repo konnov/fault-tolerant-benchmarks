@@ -1,0 +1,457 @@
+/*
+ A threshold automaton for randomized BOSCO (Algorithm 2):
+
+ Yee Jiun Song, Robbert van Renesse.
+ Bosco: One-Step Byzantine Asynchronous Consensus. DISC 2008: 438-450
+
+ This file is generated using mako templates. To produce a threshold automaton,
+ do the following:
+
+    - pip3 install Mako
+    - ./generate-automata
+
+ WARNING: THE .ta FILE HAS BEEN GENERATED. EDIT ONLY THE .ta.mako FILES
+
+ Nathalie Bertrand, Igor Konnov, Marijana Lazic, Josef Widder, 2018
+*/
+
+thresholdAutomaton Proc {
+  /* each local state has three components:
+     - pc is the control location:
+        I (initial), SV (sent vote), SC (send candidate),
+        E (final estimate), CF (coin flip)
+     - d is the decision in the current round:
+        0 and 1 when decided on 0 and 1 resp., 2 when undecided
+     - xp is the value in the current round:
+        the initial value when in I, SV, or SC,
+        and the estimate when in E or FT
+   */
+  local pc, d, xp;
+  /* the number of messages sent by the correct processes */
+  shared sv0, sv1;        /* VOTE<v> messages in the current round */
+  shared sc0, sc1, scbot; /* CANDIDATE<v> messages in the current round */
+ /* N is the number of correct processes,
+    F is the number of faulty processes, and
+    T is an upper bound on F */
+  parameters N, T, F;
+
+  assumptions (1) {
+    N > 3 * T;
+    T >= F;
+    T >= 1;
+  }
+
+  locations (13) {
+    locI0: [0;2;0]; locI1: [0;2;1];
+        /* initialized with xp = 0 or 1, no decision (= 2) */
+    locSV0: [1;2;0]; locSV1: [1;2;1];
+        /* sent VOTE<0> or VOTE<1>, no decision */
+    locSC00: [2;0;0];
+        /* sent CANDIDATE<0> or CANDIDATE<1>, xp = 0, decision 0 */
+    locSC10: [2;1;0];
+        /* sent CANDIDATE<0> or CANDIDATE<1>, xp = 0, decision 1 */
+    locSC20: [2;2;0];
+        /* sent CANDIDATE<0> or CANDIDATE<1>, xp = 0, decision 2 */
+    locSC01: [2;0;1];
+        /* sent CANDIDATE<0> or CANDIDATE<1>, xp = 1, decision 0 */
+    locSC11: [2;1;1];
+        /* sent CANDIDATE<0> or CANDIDATE<1>, xp = 1, decision 1 */
+    locSC21: [2;2;1];
+        /* sent CANDIDATE<0> or CANDIDATE<1>, xp = 1, decision 2 */
+
+    locCF0: [3;0;0]; /* coin flip after having decided on 0 (2 = undecided) */
+    locCF1: [3;1;0]; /* coin flip after having decided on 1 (2 = undecided) */
+    locCF2: [3;2;0]; /* coin flip after having decided on 2 (2 = undecided) */
+
+    locE00: [4;0;0];
+        /* final estimate 0 after having decided on 0 (2 = undecided) */
+    locE10: [4;1;0];
+        /* final estimate 0 after having decided on 1 (2 = undecided) */
+    locE20: [4;2;0];
+        /* final estimate 0 after having decided on 2 (2 = undecided) */
+    locE01: [4;0;1];
+        /* final estimate 1 after having decided on 0 (2 = undecided) */
+    locE11: [4;1;1];
+        /* final estimate 1 after having decided on 1 (2 = undecided) */
+    locE21: [4;2;1];
+        /* final estimate 1 after having decided on 2 (2 = undecided) */
+  }
+
+  inits (0) {
+    (locI0 + locI1) == N - F;
+    locSV0 == 0; locSV1 == 0;
+    locSC00 == 0;
+    locE00 == 0;
+    locSC01 == 0;
+    locE01 == 0;
+    locCF0 == 0;
+    locSC10 == 0;
+    locE10 == 0;
+    locSC11 == 0;
+    locE11 == 0;
+    locCF1 == 0;
+    locSC20 == 0;
+    locE20 == 0;
+    locSC21 == 0;
+    locE21 == 0;
+    locCF2 == 0;
+    sv0 == 0; sv1 == 0; sc0 == 0; sc1 == 0; scbot == 0;
+  }
+
+  rules (0) {
+  /* send message 0 when initialized with value 0 */
+  1: locI0 -> locSV0
+      when (true)
+      do { sv0' == sv0 + 1; unchanged(sv1, sc0, sc1, scbot); };
+  /* send message 1 when initialized with value 1 */
+  1: locI1 -> locSV1
+      when (true)
+      do { sv1' == sv1 + 1; unchanged(sv0, sc0, sc1, scbot); };
+
+    /* decide in this round on 0 and send CANDIDATE<0> */
+    /* lines 7-10 */
+  1: locSV0 -> locSC00
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0 + 2 * F > N + 3 * T /* can decide on 0 */
+            && 2 * sv0 + 2 * F > N - T)    /* can send CANDIDATE<0> */
+      do { sc0' == sc0 + 1; unchanged(sv0, sv1, scbot, sc1); };
+    /* decide in this round on 1 and send CANDIDATE<0> */
+    /* lines 7-10 */
+  1: locSV0 -> locSC10
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv1 + 2 * F > N + 3 * T /* can decide on 1 */
+            && 2 * sv0 + 2 * F > N - T)    /* can send CANDIDATE<0> */
+      do { sc0' == sc0 + 1; unchanged(sv0, sv1, scbot, sc1); };
+    /* decide in this round on 0 and send CANDIDATE<0> */
+    /* lines 7-10 */
+  1: locSV1 -> locSC01
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0 + 2 * F > N + 3 * T /* can decide on 0 */
+            && 2 * sv0 + 2 * F > N - T)    /* can send CANDIDATE<0> */
+      do { sc0' == sc0 + 1; unchanged(sv0, sv1, scbot, sc1); };
+    /* decide in this round on 1 and send CANDIDATE<0> */
+    /* lines 7-10 */
+  1: locSV1 -> locSC11
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv1 + 2 * F > N + 3 * T /* can decide on 1 */
+            && 2 * sv0 + 2 * F > N - T)    /* can send CANDIDATE<0> */
+      do { sc0' == sc0 + 1; unchanged(sv0, sv1, scbot, sc1); };
+    /* decide in this round on 0 and send CANDIDATE<1> */
+    /* lines 7-10 */
+  1: locSV0 -> locSC00
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0 + 2 * F > N + 3 * T /* can decide on 0 */
+            && 2 * sv1 + 2 * F > N - T)    /* can send CANDIDATE<1> */
+      do { sc1' == sc1 + 1; unchanged(sv0, sv1, scbot, sc0); };
+    /* decide in this round on 1 and send CANDIDATE<1> */
+    /* lines 7-10 */
+  1: locSV0 -> locSC10
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv1 + 2 * F > N + 3 * T /* can decide on 1 */
+            && 2 * sv1 + 2 * F > N - T)    /* can send CANDIDATE<1> */
+      do { sc1' == sc1 + 1; unchanged(sv0, sv1, scbot, sc0); };
+    /* decide in this round on 0 and send CANDIDATE<1> */
+    /* lines 7-10 */
+  1: locSV1 -> locSC01
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0 + 2 * F > N + 3 * T /* can decide on 0 */
+            && 2 * sv1 + 2 * F > N - T)    /* can send CANDIDATE<1> */
+      do { sc1' == sc1 + 1; unchanged(sv0, sv1, scbot, sc0); };
+    /* decide in this round on 1 and send CANDIDATE<1> */
+    /* lines 7-10 */
+  1: locSV1 -> locSC11
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv1 + 2 * F > N + 3 * T /* can decide on 1 */
+            && 2 * sv1 + 2 * F > N - T)    /* can send CANDIDATE<1> */
+      do { sc1' == sc1 + 1; unchanged(sv0, sv1, scbot, sc0); };
+
+    /* decide in this round on 0 and send CANDIDATE<?> */
+    /* lines 7,8,11,12 */
+  1: locSV0 -> locSC00
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0  + 2 * F > N + 3 * T /* can decide on 0 */
+            && 2 * sv0 + 2 * F > N - T /* can only send CANDIDATE<?> */
+            && 2 * sv1 + 2 * F > N - T)
+      do { scbot' == scbot + 1; unchanged(sc0, sc1, sv0, sv1); };
+    /* decide in this round on 1 and send CANDIDATE<?> */
+    /* lines 7,8,11,12 */
+  1: locSV0 -> locSC10
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv1  + 2 * F > N + 3 * T /* can decide on 1 */
+            && 2 * sv0 + 2 * F > N - T /* can only send CANDIDATE<?> */
+            && 2 * sv1 + 2 * F > N - T)
+      do { scbot' == scbot + 1; unchanged(sc0, sc1, sv0, sv1); };
+    /* decide in this round on 0 and send CANDIDATE<?> */
+    /* lines 7,8,11,12 */
+  1: locSV1 -> locSC01
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0  + 2 * F > N + 3 * T /* can decide on 0 */
+            && 2 * sv0 + 2 * F > N - T /* can only send CANDIDATE<?> */
+            && 2 * sv1 + 2 * F > N - T)
+      do { scbot' == scbot + 1; unchanged(sc0, sc1, sv0, sv1); };
+    /* decide in this round on 1 and send CANDIDATE<?> */
+    /* lines 7,8,11,12 */
+  1: locSV1 -> locSC11
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv1  + 2 * F > N + 3 * T /* can decide on 1 */
+            && 2 * sv0 + 2 * F > N - T /* can only send CANDIDATE<?> */
+            && 2 * sv1 + 2 * F > N - T)
+      do { scbot' == scbot + 1; unchanged(sc0, sc1, sv0, sv1); };
+
+
+    /* lines 9-10 */
+    /* do not decide in this round, send CANDIDATE<0> */
+  1: locSV0 -> locSC20
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0 + 2 * F > N - 5 * T /* cannot decide on 1 */
+            && 2 * sv1 + 2 * F > N - 5 * T /* cannot decide on 0 */
+            && 2 * sv0 + 2 * F > N - T) /* can send CANDIDATE<0> */
+      do { sc0' == sc0 + 1; unchanged(sv0, sv1, scbot, sc1); };
+    /* lines 9-10 */
+    /* do not decide in this round, send CANDIDATE<0> */
+  1: locSV1 -> locSC21
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0 + 2 * F > N - 5 * T /* cannot decide on 1 */
+            && 2 * sv1 + 2 * F > N - 5 * T /* cannot decide on 0 */
+            && 2 * sv0 + 2 * F > N - T) /* can send CANDIDATE<0> */
+      do { sc0' == sc0 + 1; unchanged(sv0, sv1, scbot, sc1); };
+    /* lines 9-10 */
+    /* do not decide in this round, send CANDIDATE<1> */
+  1: locSV0 -> locSC20
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0 + 2 * F > N - 5 * T /* cannot decide on 1 */
+            && 2 * sv1 + 2 * F > N - 5 * T /* cannot decide on 0 */
+            && 2 * sv1 + 2 * F > N - T) /* can send CANDIDATE<1> */
+      do { sc1' == sc1 + 1; unchanged(sv0, sv1, scbot, sc0); };
+    /* lines 9-10 */
+    /* do not decide in this round, send CANDIDATE<1> */
+  1: locSV1 -> locSC21
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0 + 2 * F > N - 5 * T /* cannot decide on 1 */
+            && 2 * sv1 + 2 * F > N - 5 * T /* cannot decide on 0 */
+            && 2 * sv1 + 2 * F > N - T) /* can send CANDIDATE<1> */
+      do { sc1' == sc1 + 1; unchanged(sv0, sv1, scbot, sc0); };
+
+    /* line 12 */
+    /* do not decide in this round, send CANDIDATE<?> */
+  1: locSV0 -> locSC20
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0 + 2 * F > N - 5 * T /* cannot decide on 1 */
+            && 2 * sv1 + 2 * F > N - 5 * T /* cannot decide on 0 */
+            && 2 * sv0 + 2 * F > N - T
+            && 2 * sv1 + 2 * F > N - T)     /* can only send CANDIDATE<?> */
+      do { scbot' == scbot + 1; unchanged(sc0, sc1, sv0, sv1); };
+    /* line 12 */
+    /* do not decide in this round, send CANDIDATE<?> */
+  1: locSV1 -> locSC21
+      when (sv0 + sv1 + F >= N - T
+            && 2 * sv0 + 2 * F > N - 5 * T /* cannot decide on 1 */
+            && 2 * sv1 + 2 * F > N - 5 * T /* cannot decide on 0 */
+            && 2 * sv0 + 2 * F > N - T
+            && 2 * sv1 + 2 * F > N - T)     /* can only send CANDIDATE<?> */
+      do { scbot' == scbot + 1; unchanged(sc0, sc1, sv0, sv1); };
+
+/* goto coin flip: lines 14-16 */
+  1: locSC00 -> locCF0
+      when (sc0 + sc1 + scbot + F >= N - T
+        && sc0 + scbot + F >= T + 1 /* >= t+1 msgs do not have 0 */)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC01 -> locCF0
+      when (sc0 + sc1 + scbot + F >= N - T
+        && sc1 + scbot + F >= T + 1 /* >= t+1 msgs do not have 1 */)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC10 -> locCF1
+      when (sc0 + sc1 + scbot + F >= N - T
+        && sc0 + scbot + F >= T + 1 /* >= t+1 msgs do not have 0 */)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC11 -> locCF1
+      when (sc0 + sc1 + scbot + F >= N - T
+        && sc1 + scbot + F >= T + 1 /* >= t+1 msgs do not have 1 */)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC20 -> locCF2
+      when (sc0 + sc1 + scbot + F >= N - T
+        && sc0 + scbot + F >= T + 1 /* >= t+1 msgs do not have 0 */)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC21 -> locCF2
+      when (sc0 + sc1 + scbot + F >= N - T
+        && sc1 + scbot + F >= T + 1 /* >= t+1 msgs do not have 1 */)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+
+      /* the coin flip is modeled as a non-deterministic choice */
+      1: locCF0 -> locE00
+          when (true)
+          do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+      /* the coin flip is modeled as a non-deterministic choice */
+      1: locCF0 -> locE01
+          when (true)
+          do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+      /* the coin flip is modeled as a non-deterministic choice */
+      1: locCF1 -> locE10
+          when (true)
+          do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+      /* the coin flip is modeled as a non-deterministic choice */
+      1: locCF1 -> locE11
+          when (true)
+          do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+      /* the coin flip is modeled as a non-deterministic choice */
+      1: locCF2 -> locE20
+          when (true)
+          do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+      /* the coin flip is modeled as a non-deterministic choice */
+      1: locCF2 -> locE21
+          when (true)
+          do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+
+/* fall through with the value xp, without coin flip: lines 14, 17 */
+  1: locSC00 -> locE00
+      when (sc0 + sc1 + scbot + F >= N - T
+        && sc0 + F >= N - 2 * T + 1
+        && sc1 + F >= N - 2 * T + 1)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC01 -> locE01
+      when (sc0 + sc1 + scbot + F >= N - T
+        && sc0 + F >= N - 2 * T + 1
+        && sc1 + F >= N - 2 * T + 1)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC10 -> locE10
+      when (sc0 + sc1 + scbot + F >= N - T
+        && sc0 + F >= N - 2 * T + 1
+        && sc1 + F >= N - 2 * T + 1)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC11 -> locE11
+      when (sc0 + sc1 + scbot + F >= N - T
+        && sc0 + F >= N - 2 * T + 1
+        && sc1 + F >= N - 2 * T + 1)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+
+  /* self loops */
+  1: locSV0 -> locSV0
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSV1 -> locSV1
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+
+  1: locSC00 -> locSC00
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locE00 -> locE00
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC01 -> locSC01
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locE01 -> locE01
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC10 -> locSC10
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locE10 -> locE10
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locSC11 -> locSC11
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locE11 -> locE11
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+
+  /* add a self-loop on coin flip to model execution of the next rounds */
+  1: locCF0 -> locCF0
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+  1: locCF1 -> locCF1
+      when (true)
+      do { unchanged(sc0, sc1, scbot, sv0, sv1); };
+
+  }
+
+  specifications (0) {
+    /* one-step safety */
+    one_step0:
+        ((F == 0 && N > 5 * T) || (N > 7 * T))
+        -> (locI1 == 0 ->
+            [](locSC10 == 0 && locSC11 == 0
+                && locE10 == 0 && locE11 == 0
+                && locCF1 == 0));
+    one_step1:
+        ((F == 0 && N > 5 * T) || (N > 7 * T))
+        -> (locI0 == 0 ->
+            [](locSC00 == 0 && locSC01 == 0
+                && locE00 == 0 && locE01 == 0
+                && locCF0 == 0));
+
+    /* the fairness constraints here should be encoded with respect to
+       Byzantine faults, thus, we add -f, where needed */
+    agreement0:
+        [](locSC10 == 0 && locSC11 == 0)
+     || [](locSC00 == 0 && locSC01 == 0
+                && locE00 == 0 && locE01 == 0 && locCF0 == 0);
+    agreement1:
+        [](locSC00 == 0 && locSC01 == 0)
+     || [](locSC10 == 0 && locSC11 == 0
+                && locE10 == 0 && locE11 == 0 && locCF1 == 0);
+
+    sim_agreement:
+        [](locSC00 == 0 && locSC01 == 0
+                && locE00 == 0 && locE01 == 0 && locCF0 == 0
+            || locSC10 == 0 && locSC11 == 0
+                && locE10 == 0 && locE11 == 0 && locCF1 == 0);
+
+    validity0:
+        locI0 != 0
+            || [](locE00 == 0 && locE01 == 0
+                    && locCF0 == 0 && locCF0 == 0
+                    && locSC00 == 0 && locSC01 == 0);
+    validity1:
+        locI1 != 0
+            || [](locE10 == 0 && locE11 == 0
+                    && locCF1 == 0 && locCF1 == 0
+                    && locSC10 == 0 && locSC11 == 0);
+
+    completeness0:
+        (locI1 == 0) ->
+            [] (locSC10 == 0 && locSC11 == 0
+                && locE10 == 0 && locE11 == 0
+                && locCF1 == 0 && locCF1 == 0);
+    completeness1:
+        (locI0 == 0) ->
+            [] (locSC00 == 0 && locSC01 == 0
+                && locE00 == 0 && locE01 == 0
+                && locCF0 == 0 && locCF0 == 0);
+
+    /* termination in the current round */
+    round_term:
+        (<>[]((((sv0 + sv1 < N - T)
+                || (locSV0 == 0 && locSV1 == 0))
+            && ((sc0 + sc1 < N - T) 
+                || (locSC20 == 0 && locSC21 == 0
+                        && locSC10 == 0 && locSC11 == 0
+                        && locSC00 == 0 && locSC01 == 0)))
+            && locI0 == 0 && locI1 == 0))
+        ->
+        <>(locI0 == 0 && locI1 == 0 && locSV0 == 0 && locSV1 == 0
+            && locSC20 == 0 && locSC21 == 0 && locSC10 == 0
+            && locSC11 == 0 && locSC00 == 0 && locSC01 == 0);
+
+    decide_or_flip:
+        (<>[]((((sv0 + sv1 < N - T)
+                || (locSV0 == 0 && locSV1 == 0))
+            && ((sc0 + sc1 < N - T) 
+                || (locSC20 == 0 && locSC21 == 0
+                        && locSC10 == 0 && locSC11 == 0
+                        && locSC00 == 0 && locSC01 == 0)))
+            && locI0 == 0 && locI1 == 0))
+            ->
+            <> (locI0 == 0 && locI1 == 0 && locSV0 == 0 && locSV1 == 0
+                && locSC10 == 0 && locSC11 == 0 && locSC20 == 0 && locSC21 == 0
+                || 
+                locI0 == 0 && locI1 == 0 && locSV0 == 0 && locSV1 == 0
+                && locSC00 == 0 && locSC01 == 0 && locSC20 == 0 && locSC21 == 0);
+
+
+  }
+} /* Proc */
+
+
