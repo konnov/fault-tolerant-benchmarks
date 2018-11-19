@@ -1,5 +1,7 @@
 /* A threshold automaton for a single round of the randomized k-set agreement
-   by Mostefaoui, Moumen, Raynal (TCS, 2018), Fig. 1.
+   by Mostefaoui, Moumen, Raynal. Randomized k-Set Agreement in Crash-prone
+   and Byzantine Asynchronous Systems. Theoretical Computer Science, Elsevier, 2018.
+   Algorithm, Figure 1.
 
    In this benchmark, k equals 2, and the initial values come from {0, 1, 2}.
    

@@ -25,6 +25,7 @@ Here is the short summary of the case studies:
  rabc-cr | [Randomized Consensus by Bracha -- Protocol 2](https://core.ac.uk/download/pdf/82523202.pdf) | crashes    | N > 2T | agreement{0,1}, validity{0,1}, completeness{0,1}, round_term, decide_or_flip
  rabc-s | [Randomized Consensus by Bracha -- Protocol 2](https://core.ac.uk/download/pdf/82523202.pdf) | Symmetric Byzantine    | N > 3T | agreement{0,1}, validity{0,1}, completeness{0,1}, round_term, decide_or_flip
  rabc | [Randomized Consensus by Bracha -- Protocol 2](https://core.ac.uk/download/pdf/82523202.pdf) | Byzantine    | N > 3T | agreement{0,1}, validity{0,1}, completeness{0,1}, round_term, decide_or_flip
+ kset | [Randomized k-set Agreement by Mostéfaoui, Moumen, Raynal -- Algorithm 1](https://www.researchgate.net/profile/Achour_Mostefaoui2/publication/315635158_Randomized_k_-set_agreement_in_crash-prone_and_Byzantine_asynchronous_systems/links/59aead320f7e9bdd11628394/Randomized-k-set-agreement-in-crash-prone-and-Byzantine-asynchronous-systems.pdf) | crashes    | N > 3T | agreement2, validity{02,01,12}, completeness{0,1,2}, round_term, decide_or_flip
  rs-bosco | [One-Step Byzantine Asynchronous Consensus](http://link.springer.com/chapter/10.1007/978-3-540-87779-0_30) | Byzantine    | N > 3T or N > 5T or N > 7T | sim_agreement, validity{0,1}, completeness{0,1}, round_term, decide_or_flip, one_step{0, 1}
 
 
