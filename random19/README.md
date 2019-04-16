@@ -1,10 +1,11 @@
 Case studies for randomized fault-tolerant distributed algorithms
 =========================
 
-Here you can find the benchmark set for our [submission
-82](https://hal.inria.fr/hal-01925533), which should be available at HAL soon.
+Here you can find the benchmarks for our [submission
+42](https://hal.inria.fr/hal-01925533).
 The benchmarks are encoded in threshold automata. Random choices are modelled
 as non-determinism. Check the paper to see how probabilistic reasoning is done.
+The artifact and virtual machine can be found at [the artifact page](https://forsyte.at/software/bymc/artifact42/).
 
 Every benchmark is encoded as a [mako template ](https://makotemplates.org/).
 To produce the threshold automata, run the script `generate-automata`.  For
