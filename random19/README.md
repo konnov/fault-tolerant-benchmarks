@@ -1,11 +1,10 @@
-Case studies for randomized fault-tolerant distributed algorithms
+Case studies for randomized consensus algorithms
 =========================
 
-Here you can find the benchmarks for our [submission
-42](https://hal.inria.fr/hal-01925533).
+Here you can find the benchmarks for our [technical report](https://hal.inria.fr/hal-01925533) and the [paper at CONCUR19](http://drops.dagstuhl.de/opus/volltexte/2019/10935/).
 The benchmarks are encoded in threshold automata. Random choices are modelled
 as non-determinism. Check the paper to see how probabilistic reasoning is done.
-The artifact and virtual machine can be found at [the artifact page](https://forsyte.at/software/bymc/artifact42/).
+The artifact and virtual machine can be found at [the artifact page](https://forsyte.at/software/bymc/artifact-rand-cons/).
 
 Every benchmark is encoded as a [mako template ](https://makotemplates.org/).
 To produce the threshold automata, run the script `generate-automata`.  For
