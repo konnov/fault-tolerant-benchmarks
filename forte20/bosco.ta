@@ -1,0 +1,198 @@
+/* a template for BOSCO */
+
+skel Proc {
+  /* the control locations are as follows:
+    0 is the initial state with value 0,
+    1 is the initial state with value 1,
+    2 is the state with value 0 sent,
+    3 is the state with value 1 sent,
+    4 is the state "decided on 0",
+    5 is the state "decided on 1",
+    6 is the state "called underlying consensus with value 0",
+    7 is the state "called underlying consensus with value 1",
+   */
+  local pc;
+  /* the number of messages sent by the correct processes */
+  shared nsnt0 /* sent 0 */, nsnt1 /* sent 1 */, nsnt01 /* the sum */;
+  parameters N, T, F;
+
+  define THRESH1 == N - T;          /* greater or equal */
+  define THRESH2 == N + 3 * T + 1;  /* more than */
+  define THRESH3 == N - T + 1;      /* more than */
+
+  assumptions (1) {
+    N > 3 * T;
+    T >= F;
+    T >= 1;
+  }
+
+  locations (7) {
+    loc0: [0]; loc1: [1]; locS0: [2]; locS1: [3];
+    locD0: [4]; locD1: [5]; locU0: [6]; locU1: [7];
+  }
+
+  inits (8) {
+    (loc0 + loc1) == N - F;
+    locS0 == 0; locS1 == 0; locD0 == 0;
+    locD1 == 0; locU0 == 0; locU1 == 0;
+    nsnt0 == 0; nsnt1 == 0; nsnt01 == 0;
+  }
+
+  rules (0) {
+  /* send message 0 (resp. 1) when initialized with value 1 (resp. 1) */
+  0: loc0 -> locS0
+      when (true)
+      do { nsnt0' == nsnt0 + 1; nsnt1' == nsnt1; nsnt01' == nsnt01 + 1; };
+  1: loc1 -> locS1
+      when (true)
+      do { nsnt0' == nsnt0; nsnt1' == nsnt1 + 1; nsnt01' == nsnt01 + 1; };
+
+  /* decide immediately */
+  2: locS0 -> locD0 /* decide on value 0 */
+      when ((nsnt01 >= THRESH1 - F)
+                && (2 * nsnt0 >= THRESH2 - 2 * F))
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  3: locS1 -> locD1 /* decide on value 1 */
+      when ((nsnt01 >= THRESH1 - F)
+                && (2 * nsnt1 >= THRESH2 - 2 * F))
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+
+  /* fall back to the underlying consensus with a vote */
+  4: locS0 -> locU0 /* underlying consensus 0 */
+      when ((nsnt01 >= THRESH1 - F)
+                && (2 * nsnt0 < THRESH2)
+                && (2 * nsnt1 < THRESH2)
+                && (2 * nsnt0 >= THRESH3 - 2 * F)
+                && (2 * nsnt1 < THRESH3))
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  5: locS1 -> locU0 /* underlying consensus 0 */
+      when ((nsnt01 >= THRESH1 - F)
+                && (2 * nsnt0 < THRESH2)
+                && (2 * nsnt1 < THRESH2)
+                && (2 * nsnt0 >= THRESH3 - 2 * F)
+                && (2 * nsnt1 < THRESH3))
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  6: locS0 -> locU1 /* underlying consensus 1 */
+      when ((nsnt01 >= THRESH1 - F)
+                && (2 * nsnt0 < THRESH2)
+                && (2 * nsnt1 < THRESH2)
+                && (2 * nsnt0 < THRESH3)
+                && (2 * nsnt1 >= THRESH3 - 2 * F))
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  7: locS1 -> locU1 /* underlying consensus 1 */
+      when ((nsnt01 >= THRESH1 - F)
+                && (2 * nsnt0 < THRESH2)
+                && (2 * nsnt1 < THRESH2)
+                && (2 * nsnt0 < THRESH3)
+                && (2 * nsnt1 >= THRESH3 - 2 * F))
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+
+  /* fall through with the initial value */
+  8: locS0 -> locU0 /* underlying consensus 0 */
+      when ((nsnt01 >= THRESH1 - F)
+                && (2 * nsnt0 < THRESH2)
+                && (2 * nsnt1 < THRESH2)
+                && (2 * nsnt0 < THRESH3)
+                && (2 * nsnt1 < THRESH3))
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  9: locS0 -> locU0 /* underlying consensus 0 */
+      when ((nsnt01 >= THRESH1 - F)
+                && (2 * nsnt0 < THRESH2)
+                && (2 * nsnt1 < THRESH2)
+                && (2 * nsnt0 >= THRESH3 - 2 * F)
+                && (2 * nsnt1 >= THRESH3 - 2 * F))
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  10: locS1 -> locU1 /* underlying consensus 1 */
+      when ((nsnt01 >= THRESH1 - F)
+                && (2 * nsnt0 < THRESH2)
+                && (2 * nsnt1 < THRESH2)
+                && (2 * nsnt0 < THRESH3)
+                && (2 * nsnt1 < THRESH3))
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  11: locS1 -> locU1 /* underlying consensus 1 */
+      when ((nsnt01 >= THRESH1 - F)
+                && (2 * nsnt0 < THRESH2)
+                && (2 * nsnt1 < THRESH2)
+                && (2 * nsnt0 >= THRESH3 - 2 * F)
+                && (2 * nsnt1 >= THRESH3 - 2 * F))
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+
+  /* self loops */
+  12: loc0 -> loc0
+      when (true)
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  13: loc1 -> loc1
+      when (true)
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  14: locS0 -> locS0
+      when (true)
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  15: locS1 -> locS1
+      when (true)
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+
+  16: locD0 -> locD0
+      when (true)
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  17: locD1 -> locD1
+      when (true)
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  18: locU0 -> locU0
+      when (true)
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  19: locU1 -> locU1
+      when (true)
+      do { unchanged(nsnt0, nsnt1, nsnt01); };
+  }
+
+  specifications (0) {
+    /* one-step safety */
+    one_step0:
+        ((F == 0 && N > 5 * T) || (N > 7 * T))
+        -> (loc1 == 0 -> [](locD1 == 0 && locU0 == 0 && locU1 == 0));
+
+    one_step1:
+        ((F == 0 && N > 5 * T) || (N > 7 * T))
+        -> (loc0 == 0 -> [](locD0 == 0 && locU0 == 0 && locU1 == 0));
+
+    /* safety */
+    lemma3_0: []((locD0 != 0) -> (locD1 == 0));
+    lemma3_1: []((locD1 != 0) -> (locD0 == 0));
+    lemma4_0: []((locD0 != 0) -> (locU1 == 0));
+    lemma4_1: []((locD1 != 0) -> (locU0 == 0));
+
+    /* the fairness constraints here should be encoded with respect to
+       Byzantine faults, thus, we add -f, where needed */
+
+    /* fast convergence */
+    fast0:
+        (((F == 0 && N > 5 * T) || (N > 7 * T))
+            && <>[](((nsnt01 < THRESH1)
+            || (2 * nsnt0 < THRESH2)
+            || locS0 == 0)
+                    && loc0 == 0 && loc1 == 0))
+        ->
+        (loc1 == 0
+            -> <>(loc0 == 0 && loc1 == 0 && locS0 == 0 && locS1 == 0
+                    && locD1 == 0 && locU0 == 0 && locU1 == 0));
+    fast1:
+        (((F == 0 && N > 5 * T) || (N > 7 * T))
+            && <>[](((nsnt01 < THRESH1)
+            || (2 * nsnt1 < THRESH2)
+            || locS1 == 0)
+                    && loc0 == 0 && loc1 == 0))
+        ->
+        (loc0 == 0
+            -> <>(loc0 == 0 && loc1 == 0 && locS0 == 0 && locS1 == 0
+                    && locD0 == 0 && locU0 == 0 && locU1 == 0));
+
+    /* convergence (either fast or slow) */
+    termination:
+        (<>[](((nsnt01 < THRESH1) || (locS0 == 0 && locS1 == 0))
+            && loc0 == 0 && loc1 == 0))
+        ->
+        <>(loc0 == 0 && loc1 == 0 && locS0 == 0 && locS1 == 0);
+  }
+} /* Proc */
+
+

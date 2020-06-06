@@ -1,0 +1,89 @@
+/* a threshold automata for the reliable broadcast by Srikanth & Toueg */
+
+skel Proc {
+  /* the control locations are as follows:
+    0 is the initial state with value 0,
+    1 is the initial state with value 1,
+    2 is the sent state,
+    3 is the accepting state
+   */
+  local pc;
+  /* the number of messages sent by the correct processes */
+  shared nsnt;
+  parameters N, T, F;
+
+  define THRESH1 == T + 1;
+  define THRESH2 == N - T;
+
+  assumptions (0) {
+    N > 3 * T;
+    T >= F;
+    T >= 1;
+  }
+
+  locations (0) {
+    loc0: [0];
+    loc1: [1];
+    locSE: [2];
+    locAC: [3];
+  }
+
+  inits (0) {
+    (loc0 + loc1) == N - F;
+    locSE == 0;
+    locAC == 0;
+    nsnt == 0;
+  }
+
+  rules (8) {
+  /* send a message when having value 1 */
+  0: loc1 -> locSE
+      when (true)
+      do { nsnt' == nsnt + 1; };
+  /* accept directly */
+  1: loc0 -> locAC
+      when (nsnt >= THRESH2 - F)
+      do { nsnt' == nsnt + 1; };
+  2: loc1 -> locAC
+      when (nsnt >= THRESH2 - F)
+      do { nsnt' == nsnt + 1; };
+  /* send a message */
+  3: loc0 -> locSE
+      when (nsnt >= THRESH1 - F)
+      do { nsnt' == nsnt + 1; };
+  /* accept */
+  4: locSE -> locAC
+      when (nsnt >= THRESH2 - F)
+      do { nsnt' == nsnt; };
+
+  /* self-loops in all the locations but loc1, from which processes must progress */
+  5: loc0 -> loc0
+      when (true)
+      do { nsnt' == nsnt; };
+  6: locSE -> locSE
+      when (true)
+      do { nsnt' == nsnt; };
+  7: locAC -> locAC
+      when (true)
+      do { nsnt' == nsnt; };
+  }
+
+  specifications (0) {
+    /* safety */
+    unforg: (loc1 == 0) -> [](locAC == 0);
+    
+    corr: <>[]((nsnt < THRESH1 || loc0 == 0)
+                && (nsnt < THRESH2 || loc0 == 0)
+                && ((nsnt < THRESH2) || locSE == 0)
+                && (loc1 == 0))
+        -> ((loc0 == 0) -> <>(locAC != 0));
+
+    relay: <>[]((nsnt < THRESH1 || loc0 == 0)
+                && (nsnt < THRESH2 || loc0 == 0)
+                && ((nsnt < THRESH2) || locSE == 0)
+                && (loc1 == 0))
+        -> []((locAC != 0) -> <>((loc0 == 0) && (loc1 == 0) && (locSE == 0)));
+  }
+} /* Proc */
+
+

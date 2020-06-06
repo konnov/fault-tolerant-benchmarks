@@ -1,0 +1,106 @@
+/**
+ * A threshold automaton for naive voting with crashes.
+ *
+ * For details, see:
+ *
+ * Igor Konnov, Josef Widder: ByMC: Byzantine Model Checker. ISoLA (3) 2018: 327-342
+ */
+
+thresholdAutomaton Proc {
+  /* the control locations are as follows:
+    0 is the initial state with value 0 (V0),
+    1 is the initial state with value 1 (V1),
+    2 is the sent state (SE),
+    3 is the decided 0 (D0),
+    4 is the decided 1 (D1),
+    5 is crashef (CR),
+   */
+  local pc;
+  /* the number of messages sent by the correct processes */
+  shared nsnt0, nsnt1;
+  /* the number of crashed processes */
+  shared ncrashes;
+  parameters N, T;
+
+  assumptions (0) {
+    N > 1;
+    N > T;
+  }
+
+  locations (0) {
+    locV0: [0];
+    locV1: [1];
+    locSE: [2];
+    locD0: [3];
+    locD1: [4];
+    locCR: [5];
+  }
+
+  inits (0) {
+    (locV0 + locV1) == N;
+    locSE == 0;
+    locD0 == 0;
+    locD1 == 0;
+    locCR == 0;
+    nsnt0 == 0;
+    nsnt1 == 0;
+    ncrashes == 0;
+  }
+
+  rules (0) {
+  0: locV0 -> locSE
+      when (true)
+      do { nsnt0' == nsnt0 + 1; unchanged(nsnt1, ncrashes); };
+  1: locV1 -> locSE
+      when (true)
+      do {  nsnt1' == nsnt1 + 1; unchanged(nsnt0, ncrashes); };
+  2: locSE -> locD0
+      when (2 * nsnt0 >= N + 1)
+      do { unchanged(nsnt0, nsnt1, ncrashes); };
+  3: locSE -> locD1
+      when (2 * nsnt1 >= N + 1)
+      do { unchanged(nsnt0, nsnt1, ncrashes); };
+  /* crashes */
+  4: locV0 -> locCR
+      when (ncrashes < T)
+      do { ncrashes' == ncrashes + 1; unchanged(nsnt0, nsnt1); };
+  5: locV1 -> locCR
+      when (ncrashes < T)
+      do { ncrashes' == ncrashes + 1; unchanged(nsnt0, nsnt1); };
+  6: locSE -> locCR
+      when (ncrashes < T)
+      do { ncrashes' == ncrashes + 1; unchanged(nsnt0, nsnt1); };
+  7: locD0 -> locCR
+      when (ncrashes < T)
+      do { ncrashes' == ncrashes + 1; unchanged(nsnt0, nsnt1); };
+  8: locD1 -> locCR
+      when (ncrashes < T)
+      do { ncrashes' == ncrashes + 1; unchanged(nsnt0, nsnt1); };
+  /* self loops */
+  9: locSE -> locSE
+      when (true)
+      do { unchanged(nsnt0, nsnt1, ncrashes); };
+  10: locD0 -> locD0
+      when (true)
+      do { unchanged(nsnt0, nsnt1, ncrashes); };
+  11: locD1 -> locD1
+      when (true)
+      do { unchanged(nsnt0, nsnt1, ncrashes); };
+  }
+  specifications (3) {
+    /* safety */
+    validity0: (locV1 == 0) -> [](locD1 == 0);
+    validity1: (locV0 == 0) -> [](locD0 == 0);
+    agreement: [](locD0 == 0 || locD1 == 0);
+
+    /* liveness. The precondition encodes fairness. */
+    termination:
+        <>[](locV0 == 0
+            && locV1 == 0
+            && (2 * nsnt0 < N + 1 || locSE == 0)
+            && (2 * nsnt1 < N + 1 || locSE == 0))
+          -> <>(locV0 == 0 && locV1 == 0 && locSE == 0);
+  }
+} /* Proc */
+
+

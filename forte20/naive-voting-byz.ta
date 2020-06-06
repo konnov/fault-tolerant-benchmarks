@@ -1,0 +1,86 @@
+/**
+ * A threshold automaton for naive voting with Byzantine faults.
+ *
+ * For details, see:
+ *
+ * Igor Konnov, Josef Widder: ByMC: Byzantine Model Checker. ISoLA (3) 2018: 327-342
+ */
+
+thresholdAutomaton Proc {
+  /* the control locations are as follows:
+    0 is the initial state with value 0 (V0),
+    1 is the initial state with value 1 (V1),
+    2 is the sent state (SE),
+    3 is the decided 0 (D0),
+    4 is the decided 1 (D1),
+   */
+  local pc;
+  /* the number of messages sent by the correct processes */
+  shared nsnt0, nsnt1;
+  parameters N, T, F;
+
+  assumptions (0) {
+    N > 1;
+    T >= 0;
+    T >= F;
+    N > 3 * T;
+  }
+
+  locations (0) {
+    locV0: [0];
+    locV1: [1];
+    locSE: [2];
+    locD0: [3];
+    locD1: [4];
+  }
+
+  inits (0) {
+    (locV0 + locV1) == N - F;
+    locSE == 0;
+    locD0 == 0;
+    locD1 == 0;
+    nsnt0 == 0;
+    nsnt1 == 0;
+  }
+
+  rules (0) {
+  0: locV0 -> locSE
+      when (true)
+      do { nsnt0' == nsnt0 + 1; unchanged(nsnt1); };
+  1: locV1 -> locSE
+      when (true)
+      do {  nsnt1' == nsnt1 + 1; unchanged(nsnt0); };
+  2: locSE -> locD0
+      when (2 * (nsnt0 + F) >= N + 1)
+      do { unchanged(nsnt0, nsnt1); };
+  3: locSE -> locD1
+      when (2 * (nsnt1 + F) >= N + 1)
+      do { unchanged(nsnt0, nsnt1); };
+  /* self loops */
+  4: locSE -> locSE
+      when (true)
+      do { unchanged(nsnt0, nsnt1); };
+  5: locD0 -> locD0
+      when (true)
+      do { unchanged(nsnt0, nsnt1); };
+  6: locD1 -> locD1
+      when (true)
+      do { unchanged(nsnt0, nsnt1); };
+  }
+  specifications (3) {
+    /* safety */
+    validity0: (locV1 == 0) -> [](locD1 == 0);
+    validity1: (locV0 == 0) -> [](locD0 == 0);
+    agreement: [](locD0 == 0 || locD1 == 0);
+
+    /* liveness. The precondition encodes fairness. */
+    termination:
+        <>[](locV0 == 0
+            && locV1 == 0
+            && (2 * nsnt0 < N + 1 || locSE == 0)
+            && (2 * nsnt1 < N + 1 || locSE == 0))
+          -> <>(locV0 == 0 && locV1 == 0 && locSE == 0);
+  }
+} /* Proc */
+
+
