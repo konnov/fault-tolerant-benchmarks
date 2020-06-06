@@ -24,7 +24,7 @@ thresholdAutomaton Proc {
 
   assumptions (0) {
     N > 1;
-    N > T;
+    N > 2 * T;
   }
 
   locations (0) {
