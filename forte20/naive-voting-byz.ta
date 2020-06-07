@@ -77,7 +77,8 @@ thresholdAutomaton Proc {
     termination:
         <>[](locV0 == 0
             && locV1 == 0
-            && (2 * nsnt0 < N + 1 || 2 * nsnt1 < N + 1 || locSE == 0))
+            && (2 * nsnt0 <= N + 1 || locSE == 0)
+            && (2 * nsnt1 <= N + 1 || locSE == 0))
           -> <>(locV0 == 0 && locV1 == 0 && locSE == 0);
   }
 } /* Proc */
