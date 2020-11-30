@@ -1,0 +1,269 @@
+/* A threshold automaton for a single round of binary Tendermint consensus,
+   abstracted for safety.
+   
+   Igor Konnov, Marijana Lazic, Ilina Stoilkovska, Josef Widder, 2020.
+ */
+
+thresholdAutomaton Proc {
+  /* the control locations are as follows:
+    0 is the initial state "propose",
+    1 is the state "prevote",
+    2 is the state "precommit",
+    3 is the state "decide0",
+    4 is the state "decide1",
+    5 is the state "nodecision"
+   */
+  local pc;
+  /* the number of messages sent by the correct processes */
+  shared nprop0, nprop1,
+         nprevote0, nprevote1, nprevoteNil,
+         nprevoteAll,
+         nprecommit0, nprecommit1, nprecommitNil,
+         nprecommitAll;
+
+  parameters N, T, F;
+
+  assumptions (0) {
+    N == 3 * T + 1;
+    T >= F;
+    T >= 1;
+  }
+
+  locations (0) {
+    locPropose:     [0];
+    locPrevote:     [1];
+    locPrecommit:   [2];
+    locDecide0:     [3];
+    locDecide1:     [4];
+    locNoDecision:  [5];
+  }
+
+  inits (0) {
+    locPropose == N - F;
+    locPrevote == 0;
+    locPrecommit == 0;
+    locDecide0 == 0;
+    locDecide1 == 0;
+    locNoDecision == 0;
+    /* the proposer can send 0s or 1s */
+    nprop0 <= 1;
+    nprop1 <= 1;
+    nprevote0 == 0;
+    nprevote1 == 0;
+    nprevoteNil == 0;
+    nprevoteAll == 0;
+    nprecommit0 == 0;
+    nprecommit1 == 0;
+    nprecommitNil == 0;
+    nprecommitAll == 0;
+  }
+
+  rules (0) {
+
+  /* abstraction: some process sends a proposal */
+
+  /* Line22(v) in the TLA+ spec */
+  1: locPropose -> locPrevote
+      when (nprop0 >= 1)
+      do {
+        nprevote0' == nprevote0 + 1;
+        nprevoteAll' == nprevoteAll + 1;
+        unchanged(nprop0, nprop1,
+                  nprevote1, nprevoteNil,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  2: locPropose -> locPrevote
+      when (nprop0 >= 1)
+      do {
+        nprevoteNil' == nprevoteNil + 1;
+        nprevoteAll' == nprevoteAll + 1;
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  1: locPropose -> locPrevote
+      when (nprop1 >= 1)
+      do {
+        nprevote1' == nprevote1 + 1;
+        nprevoteAll' == nprevoteAll + 1;
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevoteNil,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  2: locPropose -> locPrevote
+      when (nprop1 >= 1)
+      do {
+        nprevoteNil' == nprevoteNil + 1;
+        nprevoteAll' == nprevoteAll + 1;
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+
+  /* Line36(v)  */
+  3: locPrevote -> locPrecommit
+      when (nprop0 >= 1 && nprevote0 >= 2 * T + 1 - F)
+      do {
+        nprecommit0' == nprecommit0 + 1;
+        nprecommitAll' == nprecommitAll + 1;
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit1, nprecommitNil);
+      };
+  3: locPrevote -> locPrecommit
+      when (nprop1 >= 1 && nprevote1 >= 2 * T + 1 - F)
+      do {
+        nprecommit1' == nprecommit1 + 1;
+        nprecommitAll' == nprecommitAll + 1;
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommitNil);
+      };
+
+  /* Line44  */
+  4: locPrevote -> locPrecommit
+      when (nprevoteNil >= 2 * T + 1 - F)
+      do {
+        nprecommitNil' == nprecommitNil + 1;
+        nprecommitAll' == nprecommitAll + 1;
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1);
+      };
+
+  /* Line49(v)  */
+  5: locPropose -> locDecide0
+      when (nprop0 >= 1 && nprecommit0 >= 2 * T + 1 - F)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  5: locPrevote -> locDecide0
+      when (nprop0 >= 1 && nprecommit0 >= 2 * T + 1 - F)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  5: locPrecommit -> locDecide0
+      when (nprop0 >= 1 && nprecommit0 >= 2 * T + 1 - F)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  5: locPropose -> locDecide1
+      when (nprop1 >= 1 && nprecommit1 >= 2 * T + 1 - F)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  5: locPrevote -> locDecide1
+      when (nprop1 >= 1 && nprecommit1 >= 2 * T + 1 - F)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  5: locPrecommit -> locDecide1
+      when (nprop1 >= 1 && nprecommit1 >= 2 * T + 1 - F)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+
+  /* OnTimeoutPropose  */
+  6: locPropose -> locPrevote
+      when (true)
+      do {
+        nprevoteNil' == nprevoteNil + 1;
+        nprevoteAll' == nprevoteAll + 1;
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+
+  /* OnTimeoutPrevote  */
+  7: locPrevote -> locPrecommit
+      when (nprevoteAll >= 2 * T + 1 - F)
+      do {
+        nprecommitNil' == nprecommitNil + 1;
+        nprecommitAll' == nprecommitAll + 1;
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1);
+      };
+
+  /* OnTimeoutPrecommit  */
+  8: locPrecommit -> locNoDecision
+      when (nprecommitAll >= 2 * T + 1 - F)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+
+  /* self-loops */
+  0: locPropose -> locPropose
+      when (true)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  0: locPrevote -> locPrevote
+      when (true)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  0: locPrecommit -> locPrecommit
+      when (true)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  0: locDecide0 -> locDecide0
+      when (true)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  0: locDecide1 -> locDecide1
+      when (true)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  0: locNoDecision -> locNoDecision
+      when (true)
+      do {
+        unchanged(nprop0, nprop1,
+                  nprevote0, nprevote1, nprevoteNil, nprevoteAll,
+                  nprecommit0, nprecommit1, nprecommitNil, nprecommitAll);
+      };
+  }
+
+  specifications (0) {
+    /* safety */
+    agreement0: []((locDecide0 != 0) -> [](locDecide1 == 0));
+    agreement1: []((locDecide1 != 0) -> [](locDecide0 == 0));
+    /* these properties should be violated: the processes should be able
+       to reach Decide0, Decide1 and NoDecision                             */
+    noDecide0: [](locDecide0 == 0);
+    noDecide1: [](locDecide1 == 0);
+    noNoDecision: [](locNoDecision == 0);
+
+    noPrevote: [](locPrevote == 0);
+    noPrecommit: [](locPrecommit == 0);
+  }
+} /* Proc */
+
+
